@@ -9,7 +9,7 @@ from homeassistant.components.frontend import add_extra_js_url
 from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import EVENT_HOMEASSISTANT_STARTED, Platform
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, ServiceCall, SupportsResponse
 from homeassistant.helpers import device_registry as dr, entity_registry as er
 
 from .const import CARD_NAME, CARD_URL, DOMAIN, STATIC_PATH, VERSION
@@ -25,6 +25,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if not data.get("ws"):
         async_register(hass)
         data["ws"] = True
+
+        async def _check(call: ServiceCall):
+            ent = next((e for e in hass.config_entries.async_entries(DOMAIN) if getattr(e, "runtime_data", None)), None)
+            return await ent.runtime_data.async_camera_check() if ent else {"skipped": True, "reason": "not_loaded"}
+        hass.services.async_register(DOMAIN, "check_camera", _check, supports_response=SupportsResponse.OPTIONAL)
     await _async_setup_card(hass)
     manager = BinsManager(hass, entry)
     await manager.async_load()

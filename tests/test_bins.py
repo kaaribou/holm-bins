@@ -137,3 +137,44 @@ async def test_import_calendar(hass, freezer):
     assert b["source"] == "rule" and b["rule"]["interval"] == 2 and b["rule"]["weekdays"] == [2], b
     assert b["color"] == "#78828c"
     assert hass.states.get(f"sensor.{b['id']}_prochaine_collecte").state == "2026-11-25"
+
+
+async def test_camera_check(hass, freezer):
+    from homeassistant.core import SupportsResponse
+    calls = {"snap": [], "ai": []}
+
+    async def snap(call):
+        calls["snap"].append(call.data)
+
+    async def gen(call):
+        calls["ai"].append(call.data)
+        return {"conversation_id": "x", "data": {"poubelle_jaune": True, "poubelle_verte": False}}
+    hass.services.async_register("camera", "snapshot", snap)
+    hass.services.async_register("ai_task", "generate_data", gen, supports_response=SupportsResponse.ONLY)
+    notif = async_mock_service(hass, "notify", "mobile_app_test")
+    entry = await _setup(hass, freezer, datetime(2026, 11, 17, 19, 30, tzinfo=TZ))
+    m = entry.runtime_data
+    await m.async_replace([
+        {"name": "Poubelle Jaune", "rule": {"type": "weekly", "weekdays": [2]}, "notify": False},
+        {"name": "Poubelle Verte", "rule": {"type": "weekly", "weekdays": [2]}, "notify": False, "image": "/local/v.png"},
+    ], {"targets": ["mobile_app_test"], "camera": "camera.porte", "camera_time": "20:00", "camera_alert": True})
+    await hass.config_entries.async_reload(entry.entry_id)
+    await hass.async_block_till_done()
+    m = hass.config_entries.async_get_entry(entry.entry_id).runtime_data
+    assert hass.states.get("sensor.poubelle_verte_prochaine_collecte").attributes["image"] == "/local/v.png"
+    events = []
+    hass.bus.async_listen("holm_bins_verification", lambda e: events.append(e.data))
+    freezer.move_to(datetime(2026, 11, 17, 20, 0, 5, tzinfo=TZ))
+    async_fire_time_changed(hass)
+    await hass.async_block_till_done()
+    assert calls["snap"] and calls["ai"], calls
+    assert set(calls["ai"][0]["structure"]) == {"poubelle_jaune", "poubelle_verte"}
+    assert hass.states.get("switch.poubelle_jaune_sortie").state == "on"
+    assert hass.states.get("switch.poubelle_verte_sortie").state == "off"
+    alerts = [c for c in notif if "Poubelle Verte" in c.data.get("message", "")]
+    assert alerts and alerts[0].data["data"]["image"].startswith("/local/holm_bins/"), [c.data for c in notif]
+    assert events and events[0]["missing"] == ["poubelle_verte"]
+    # test manuel : rien n'est marqué, pas d'alerte
+    n = len(notif)
+    r = await m.async_camera_check(force=True)
+    assert r["missing"] == ["poubelle_verte"] and len(notif) == n

@@ -1,7 +1,7 @@
 /* HOLM Poubelles — carte des collectes — https://github.com/kaaribou/holm-bins — licence MIT
  * HOLM — Home Orchestration & Living Management */
 (() => {
-  const VERSION = "1.0.0";
+  const VERSION = "1.1.0";
   // ---- HOLM i18n : textes écrits en français, traduits à l'affichage (en, de, es, it, nl, pt, pl) ----
   const HOLM_LANGS = ["en", "de", "es", "it", "nl", "pt", "pl"];
   const LANG_NAMES = { fr: "Français", en: "English", de: "Deutsch", es: "Español", it: "Italiano", nl: "Nederlands", pt: "Português", pl: "Polski" };
@@ -15,6 +15,8 @@
     "Ajouter": ["Add", "Hinzufügen", "Añadir", "Aggiungi", "Toevoegen", "Adicionar", "Dodaj"],
     "Ajouter une poubelle": ["Add a bin", "Tonne hinzufügen", "Añadir un cubo", "Aggiungi un bidone", "Container toevoegen", "Adicionar um contentor", "Dodaj kosz"],
     "Ajoutez au moins une date pour « {n} ».": ["Add at least one date for \"{n}\".", "Mindestens ein Datum für „{n}“ hinzufügen.", "Añada al menos una fecha para «{n}».", "Aggiungi almeno una data per «{n}».", "Voeg minstens één datum toe voor \"{n}\".", "Adicione pelo menos uma data para «{n}».", "Dodaj co najmniej jedną datę dla „{n}”."],
+    "Alerte envoyée à (aucun = les destinataires des rappels)": ["Alert sent to (none = reminder recipients)", "Warnung senden an (keine = Empfänger der Erinnerungen)", "Alerta enviada a (ninguno = destinatarios de los recordatorios)", "Avviso inviato a (nessuno = destinatari dei promemoria)", "Waarschuwing naar (geen = ontvangers van de herinneringen)", "Alerta enviado para (nenhum = destinatários dos lembretes)", "Alert wysyłany do (brak = odbiorcy przypomnień)"],
+    "Alerter avec la photo si des poubelles ne sont pas vues": ["Alert with the photo if bins are not seen", "Mit Foto warnen, wenn Tonnen nicht zu sehen sind", "Alertar con la foto si no se ven cubos", "Avvisa con la foto se i bidoni non sono visibili", "Waarschuwen met de foto als containers niet gezien worden", "Alertar com a foto se os contentores não forem vistos", "Wyślij alert ze zdjęciem, jeśli kosze nie są widoczne"],
     "Ambiances HOLM FX": ["HOLM FX ambiences", "HOLM-FX-Ambiente", "Ambientes HOLM FX", "Ambientazioni HOLM FX", "HOLM FX-sferen", "Ambientes HOLM FX", "Efekty HOLM FX"],
     "Animation la veille (J-1)": ["Animation the day before", "Animation am Vortag", "Animación la víspera", "Animazione il giorno prima", "Animatie de dag ervoor", "Animação na véspera", "Animacja dzień wcześniej"],
     "Animation le jour de collecte": ["Animation on collection day", "Animation am Abholtag", "Animación el día de recogida", "Animazione il giorno di raccolta", "Animatie op ophaaldag", "Animação no dia da recolha", "Animacja w dniu odbioru"],
@@ -25,6 +27,7 @@
     "Aucun destinataire valide : cochez au moins un appareil.": ["No valid recipient: tick at least one device.", "Kein gültiger Empfänger: mindestens ein Gerät auswählen.", "Ningún destinatario válido: marque al menos un dispositivo.", "Nessun destinatario valido: seleziona almeno un dispositivo.", "Geen geldige ontvanger: vink minstens één apparaat aan.", "Nenhum destinatário válido: marque pelo menos um dispositivo.", "Brak odbiorcy: zaznacz co najmniej jedno urządzenie."],
     "Aucun service de notification": ["No notification service", "Kein Benachrichtigungsdienst", "Ningún servicio de notificación", "Nessun servizio di notifica", "Geen meldingsdienst", "Nenhum serviço de notificação", "Brak usługi powiadomień"],
     "Aucune": ["None", "Keine", "Ninguna", "Nessuna", "Geen", "Nenhuma", "Brak"],
+    "Aucune (vérification désactivée)": ["None (check turned off)", "Keine (Prüfung aus)", "Ninguna (comprobación desactivada)", "Nessuna (controllo disattivato)", "Geen (controle uit)", "Nenhuma (verificação desativada)", "Brak (sprawdzanie wyłączone)"],
     "Aucune action": ["No action", "Keine Aktion", "Ninguna acción", "Nessuna azione", "Geen actie", "Nenhuma ação", "Brak akcji"],
     "Aucune collecte dans la période choisie.": ["No collection in the chosen period.", "Keine Abholung im gewählten Zeitraum.", "Ninguna recogida en el periodo elegido.", "Nessuna raccolta nel periodo scelto.", "Geen ophaling in de gekozen periode.", "Nenhuma recolha no período escolhido.", "Brak odbioru w wybranym okresie."],
     "Aucune collecte prévue": ["No collection scheduled", "Keine Abholung geplant", "Ninguna recogida prevista", "Nessuna raccolta prevista", "Geen ophaling gepland", "Nenhuma recolha prevista", "Brak zaplanowanego odbioru"],
@@ -40,6 +43,8 @@
     "Calendrier": ["Calendar", "Kalender", "Calendario", "Calendario", "Kalender", "Calendário", "Kalendarz"],
     "Calendrier {c}": ["Calendar {c}", "Kalender {c}", "Calendario {c}", "Calendario {c}", "Kalender {c}", "Calendário {c}", "Kalendarz {c}"],
     "Camion qui passe": ["Passing truck", "Vorbeifahrender Müllwagen", "Camión que pasa", "Camion che passa", "Voorbijrijdende vrachtwagen", "Camião a passar", "Przejeżdżająca śmieciarka"],
+    "Caméra": ["Camera", "Kamera", "Cámara", "Telecamera", "Camera", "Câmara", "Kamera"],
+    "Celle par défaut de Home Assistant": ["Home Assistant's default one", "Standard von Home Assistant", "La predeterminada de Home Assistant", "Quella predefinita di Home Assistant", "Standaard van Home Assistant", "A predefinida do Home Assistant", "Domyślne z Home Assistant"],
     "Chaque poubelle doit avoir un nom.": ["Each bin needs a name.", "Jede Tonne braucht einen Namen.", "Cada cubo necesita un nombre.", "Ogni bidone deve avere un nome.", "Elke container heeft een naam nodig.", "Cada contentor precisa de um nome.", "Każdy kosz musi mieć nazwę."],
     "Chaque semaine": ["Every week", "Jede Woche", "Cada semana", "Ogni settimana", "Elke week", "Todas as semanas", "Co tydzień"],
     "Chaque semaine, le {d}": ["Every week, on {d}", "Jede Woche, {d}", "Cada semana, el {d}", "Ogni settimana, il {d}", "Elke week, op {d}", "Todas as semanas, à {d}", "Co tydzień, {d}"],
@@ -58,7 +63,9 @@
     "Dates de collecte": ["Collection dates", "Abholtermine", "Fechas de recogida", "Date di raccolta", "Ophaaldata", "Datas de recolha", "Terminy odbioru"],
     "Dates à la main": ["Manual dates", "Manuelle Termine", "Fechas manuales", "Date manuali", "Handmatige data", "Datas manuais", "Daty ręczne"],
     "Demain": ["Tomorrow", "Morgen", "Mañana", "Domani", "Morgen", "Amanhã", "Jutro"],
+    "Dernière vérification": ["Last check", "Letzte Prüfung", "Última comprobación", "Ultimo controllo", "Laatste controle", "Última verificação", "Ostatnie sprawdzenie"],
     "Descendre": ["Move down", "Nach unten", "Bajar", "Sposta giù", "Omlaag", "Mover para baixo", "W dół"],
+    "Dessin HOLM": ["HOLM drawing", "HOLM-Zeichnung", "Dibujo HOLM", "Disegno HOLM", "HOLM-tekening", "Desenho HOLM", "Rysunek HOLM"],
     "Disposition": ["Layout", "Anordnung", "Disposición", "Disposizione", "Indeling", "Disposição", "Układ"],
     "Décaler au lendemain les jours fériés": ["Move public holidays to the next day", "Feiertage auf den nächsten Tag verschieben", "Pasar los festivos al día siguiente", "Spostare i festivi al giorno dopo", "Feestdagen naar de volgende dag verschuiven", "Passar os feriados para o dia seguinte", "Przesuwać święta na następny dzień"],
     "En liste": ["As a list", "Als Liste", "En lista", "In elenco", "Als lijst", "Em lista", "Jako lista"],
@@ -68,19 +75,25 @@
     "Enregistrer": ["Save", "Speichern", "Guardar", "Salva", "Opslaan", "Guardar", "Zapisz"],
     "Enregistrez d'abord la poubelle pour voir l'animation sur la carte.": ["Save the bin first to see the animation on the card.", "Tonne zuerst speichern, um die Animation auf der Karte zu sehen.", "Guarde primero el cubo para ver la animación en la tarjeta.", "Salva prima il bidone per vedere l'animazione sulla scheda.", "Sla de container eerst op om de animatie op de kaart te zien.", "Guarde primeiro o contentor para ver a animação no cartão.", "Najpierw zapisz kosz, aby zobaczyć animację na karcie."],
     "Envoi impossible : {e}": ["Cannot send: {e}", "Senden nicht möglich: {e}", "No se puede enviar: {e}", "Impossibile inviare: {e}", "Verzenden mislukt: {e}", "Não foi possível enviar: {e}", "Nie można wysłać: {e}"],
+    "Envoi…": ["Uploading…", "Wird hochgeladen…", "Enviando…", "Invio…", "Uploaden…", "A enviar…", "Wysyłanie…"],
     "Envoyer une notification de test": ["Send a test notification", "Testbenachrichtigung senden", "Enviar una notificación de prueba", "Invia una notifica di prova", "Testmelding sturen", "Enviar uma notificação de teste", "Wyślij powiadomienie testowe"],
     "Envoyer à": ["Send to", "Senden an", "Enviar a", "Invia a", "Sturen naar", "Enviar para", "Wyślij do"],
     "Fréquence": ["Frequency", "Häufigkeit", "Frecuencia", "Frequenza", "Frequentie", "Frequência", "Częstotliwość"],
     "HOLM Poubelles": ["HOLM Bins", "HOLM Mülltonnen", "HOLM Cubos", "HOLM Bidoni", "HOLM Containers", "HOLM Contentores", "HOLM Kosze"],
     "Halo lumineux": ["Glowing halo", "Leuchtender Schein", "Halo luminoso", "Alone luminoso", "Lichtende halo", "Halo luminoso", "Świetlna aureola"],
+    "Heure de la vérification (la veille)": ["Check time (the day before)", "Prüfzeit (am Vortag)", "Hora de la comprobación (la víspera)", "Ora del controllo (il giorno prima)", "Tijd van de controle (dag ervoor)", "Hora da verificação (na véspera)", "Godzina sprawdzenia (dzień wcześniej)"],
+    "Image du bac": ["Bin image", "Tonnenbild", "Imagen del cubo", "Immagine del bidone", "Afbeelding van de container", "Imagem do contentor", "Obraz kosza"],
+    "Image personnalisée": ["Custom image", "Eigenes Bild", "Imagen personalizada", "Immagine personalizzata", "Eigen afbeelding", "Imagem personalizada", "Własny obraz"],
     "Indiquez une date de collecte connue pour « {n} ».": ["Enter a known collection date for \"{n}\".", "Ein bekanntes Abholdatum für „{n}“ angeben.", "Indique una fecha de recogida conocida para «{n}».", "Indica una data di raccolta nota per «{n}».", "Geef een bekende ophaaldatum op voor \"{n}\".", "Indique uma data de recolha conhecida para «{n}».", "Podaj znaną datę odbioru dla „{n}”."],
     "Installez la carte HOLM FX pour choisir aussi parmi ses ambiances animées.": ["Install the HOLM FX card to also choose from its animated ambiences.", "Installieren Sie die HOLM-FX-Karte, um auch aus ihren Animationen zu wählen.", "Instale la tarjeta HOLM FX para elegir también entre sus ambientes animados.", "Installa la scheda HOLM FX per scegliere anche tra le sue ambientazioni animate.", "Installeer de HOLM FX-kaart om ook uit haar animaties te kiezen.", "Instale o cartão HOLM FX para escolher também entre os seus ambientes animados.", "Zainstaluj kartę HOLM FX, aby wybierać także z jej animowanych efektów."],
     "Intégration HOLM Poubelles introuvable : {e}": ["HOLM Bins integration not found: {e}", "Integration HOLM Mülltonnen nicht gefunden: {e}", "Integración HOLM Cubos no encontrada: {e}", "Integrazione HOLM Bidoni non trovata: {e}", "Integratie HOLM Containers niet gevonden: {e}", "Integração HOLM Contentores não encontrada: {e}", "Nie znaleziono integracji HOLM Kosze: {e}"],
     "Jour": ["Day", "Tag", "Día", "Giorno", "Dag", "Dia", "Dzień"],
     "Jour(s)": ["Day(s)", "Tag(e)", "Día(s)", "Giorno/i", "Dag(en)", "Dia(s)", "Dzień/dni"],
+    "La veille de la collecte, à l'heure choisie, la caméra prend une photo et une tâche IA de Home Assistant regarde quelles poubelles sont sorties : celles qu'elle voit sont marquées sorties (plus de relance), pour les autres une alerte part avec la photo.": ["The day before the collection, at the chosen time, the camera takes a picture and a Home Assistant AI task looks at which bins are out: those it sees are marked out (no more follow-ups); for the others an alert is sent with the photo.", "Am Vortag der Abholung macht die Kamera zur gewählten Zeit ein Foto, und eine KI-Aufgabe von Home Assistant prüft, welche Tonnen draußen sind: gesehene werden als rausgestellt markiert (keine Erinnerung mehr), für die anderen kommt eine Warnung mit Foto.", "La víspera de la recogida, a la hora elegida, la cámara toma una foto y una tarea de IA de Home Assistant mira qué cubos están fuera: los que ve se marcan como sacados (sin más recordatorios); para los demás se envía una alerta con la foto.", "Il giorno prima della raccolta, all'ora scelta, la telecamera scatta una foto e un compito IA di Home Assistant controlla quali bidoni sono fuori: quelli visti sono segnati come fuori (niente più solleciti); per gli altri parte un avviso con la foto.", "De dag voor de ophaling maakt de camera op het gekozen tijdstip een foto en kijkt een AI-taak van Home Assistant welke containers buiten staan: geziene worden als buiten gemarkeerd (geen herinneringen meer), voor de andere gaat een waarschuwing met de foto.", "Na véspera da recolha, à hora escolhida, a câmara tira uma foto e uma tarefa de IA do Home Assistant vê que contentores estão na rua: os vistos ficam marcados (sem mais lembretes); para os outros é enviado um alerta com a foto.", "Dzień przed odbiorem, o wybranej godzinie, kamera robi zdjęcie, a zadanie AI Home Assistant sprawdza, które kosze są wystawione: widoczne są oznaczane jako wystawione (bez kolejnych przypomnień), dla pozostałych wysyłany jest alert ze zdjęciem."],
     "Langue": ["Language", "Sprache", "Idioma", "Lingua", "Taal", "Idioma", "Język"],
     "Le": ["The", "Am", "El", "Il", "De", "O", "W"],
     "Le jour de collecte, passer à la suivante à": ["On collection day, move to the next one at", "Am Abholtag zur nächsten wechseln um", "El día de recogida, pasar a la siguiente a las", "Il giorno di raccolta, passare alla successiva alle", "Op ophaaldag overgaan naar de volgende om", "No dia da recolha, passar à seguinte às", "W dniu odbioru przejdź do następnego o"],
+    "Le test enregistre les réglages, prend une photo et interroge l'IA, sans marquer de poubelle ni envoyer d'alerte.": ["The test saves the settings, takes a picture and asks the AI, without marking any bin or sending an alert.", "Der Test speichert die Einstellungen, macht ein Foto und fragt die KI, ohne Tonnen zu markieren oder Warnungen zu senden.", "La prueba guarda los ajustes, toma una foto y consulta a la IA, sin marcar cubos ni enviar alertas.", "Il test salva le impostazioni, scatta una foto e interroga l'IA, senza segnare bidoni né inviare avvisi.", "De test slaat de instellingen op, maakt een foto en vraagt de AI, zonder containers te markeren of waarschuwingen te sturen.", "O teste guarda as definições, tira uma foto e consulta a IA, sem marcar contentores nem enviar alertas.", "Test zapisuje ustawienia, robi zdjęcie i pyta AI, bez oznaczania koszy i wysyłania alertów."],
     "Le {n} {d} du mois": ["The {n} {d} of the month", "Am {n} {d} des Monats", "El {n} {d} del mes", "Il {n} {d} del mese", "De {n} {d} van de maand", "A {n} {d} do mês", "{n} {d} miesiąca"],
     "Les rappels partent pour les poubelles dont la notification est activée. Le bouton « C'est fait » de la notification marque les poubelles comme sorties.": ["Reminders are sent for bins with notifications turned on. The notification's \"Done\" button marks the bins as put out.", "Erinnerungen gehen für Tonnen mit aktivierter Benachrichtigung raus. Die Taste „Erledigt“ markiert die Tonnen als rausgestellt.", "Los recordatorios se envían para los cubos con la notificación activada. El botón «Hecho» marca los cubos como sacados.", "I promemoria partono per i bidoni con la notifica attivata. Il pulsante «Fatto» segna i bidoni come portati fuori.", "Herinneringen gaan uit voor containers met meldingen aan. De knop \"Gedaan\" markeert de containers als buitengezet.", "Os lembretes são enviados para os contentores com notificação ativa. O botão «Feito» marca-os como postos na rua.", "Przypomnienia wysyłane są dla koszy z włączonym powiadomieniem. Przycisk „Zrobione” oznacza kosze jako wystawione."],
     "Marquer sortie (veille, jour J), sinon détails": ["Mark as put out (day before, collection day), otherwise details", "Als rausgestellt markieren (Vortag, Abholtag), sonst Details", "Marcar como sacado (víspera, día de recogida), si no detalles", "Segna come fuori (giorno prima, giorno di raccolta), altrimenti dettagli", "Markeren als buiten (dag ervoor, ophaaldag), anders details", "Marcar como na rua (véspera, dia da recolha), senão detalhes", "Oznacz jako wystawiony (dzień przed, dzień odbioru), w innym razie szczegóły"],
@@ -92,6 +105,8 @@
     "Notification envoyée à {n} appareil(s).": ["Notification sent to {n} device(s).", "Benachrichtigung an {n} Gerät(e) gesendet.", "Notificación enviada a {n} dispositivo(s).", "Notifica inviata a {n} dispositivo/i.", "Melding verstuurd naar {n} apparaat/apparaten.", "Notificação enviada para {n} dispositivo(s).", "Powiadomienie wysłane do {n} urządzeń."],
     "Ordre": ["Order", "Reihenfolge", "Orden", "Ordine", "Volgorde", "Ordem", "Kolejność"],
     "Ordre des réglages": ["Settings order", "Reihenfolge der Einstellungen", "Orden de los ajustes", "Ordine delle impostazioni", "Volgorde van de instellingen", "Ordem das definições", "Kolejność z ustawień"],
+    "PNG ou SVG au fond transparent conseillé. Une adresse /local/… (dossier www) ou https://… fonctionne aussi.": ["PNG or SVG with a transparent background recommended. A /local/… (www folder) or https://… address works too.", "PNG oder SVG mit transparentem Hintergrund empfohlen. Eine Adresse /local/… (Ordner www) oder https://… geht auch.", "Se recomienda PNG o SVG con fondo transparente. También sirve una dirección /local/… (carpeta www) o https://….", "Consigliato PNG o SVG con sfondo trasparente. Funziona anche un indirizzo /local/… (cartella www) o https://….", "PNG of SVG met transparante achtergrond aanbevolen. Een adres /local/… (map www) of https://… werkt ook.", "Recomenda-se PNG ou SVG com fundo transparente. Um endereço /local/… (pasta www) ou https://… também funciona.", "Zalecany PNG lub SVG z przezroczystym tłem. Działa też adres /local/… (folder www) lub https://…."],
+    "Pas vues": ["Not seen", "Nicht gesehen", "No vistos", "Non visti", "Niet gezien", "Não vistos", "Niewidoczne"],
     "Poubelle {n}": ["Bin {n}", "Tonne {n}", "Cubo {n}", "Bidone {n}", "Container {n}", "Contentor {n}", "Kosz {n}"],
     "Poubelles": ["Bins", "Tonnen", "Cubos", "Bidoni", "Containers", "Contentores", "Kosze"],
     "Poubelles affichées (aucune = toutes)": ["Bins shown (none = all)", "Angezeigte Tonnen (keine = alle)", "Cubos mostrados (ninguno = todos)", "Bidoni mostrati (nessuno = tutti)", "Getoonde containers (geen = alle)", "Contentores mostrados (nenhum = todos)", "Wyświetlane kosze (brak = wszystkie)"],
@@ -104,6 +119,7 @@
     "Rappels": ["Reminders", "Erinnerungen", "Recordatorios", "Promemoria", "Herinneringen", "Lembretes", "Przypomnienia"],
     "Rebond": ["Bounce", "Hüpfen", "Rebote", "Rimbalzo", "Stuiteren", "Ressalto", "Podskok"],
     "Relance si pas sortie à": ["Follow-up if not out at", "Nachfassen, wenn nicht draußen, um", "Insistir si no se ha sacado a las", "Sollecito se non fuori alle", "Opnieuw herinneren als niet buiten om", "Insistir se não estiver na rua às", "Ponowne przypomnienie, jeśli nie wystawiony, o"],
+    "Rien à vérifier : choisissez une caméra.": ["Nothing to check: choose a camera.", "Nichts zu prüfen: Kamera wählen.", "Nada que comprobar: elija una cámara.", "Niente da controllare: scegli una telecamera.", "Niets te controleren: kies een camera.", "Nada a verificar: escolha uma câmara.", "Nic do sprawdzenia: wybierz kamerę."],
     "Récurrence": ["Recurrence", "Wiederholung", "Recurrencia", "Ricorrenza", "Herhaling", "Recorrência", "Cykl"],
     "Réglages des poubelles": ["Bin settings", "Tonnen-Einstellungen", "Ajustes de los cubos", "Impostazioni dei bidoni", "Instellingen containers", "Definições dos contentores", "Ustawienia koszy"],
     "Sac": ["Bag", "Sack", "Bolsa", "Sacco", "Zak", "Saco", "Worek"],
@@ -116,9 +132,16 @@
     "Toutes les semaines": ["Weekly", "Wöchentlich", "Semanal", "Settimanale", "Wekelijks", "Semanal", "Tygodniowo"],
     "Toutes les {n} semaines": ["Every {n} weeks", "Alle {n} Wochen", "Cada {n} semanas", "Ogni {n} settimane", "Elke {n} weken", "A cada {n} semanas", "Co {n} tygodnie"],
     "Toutes les {n} semaines, le {d}": ["Every {n} weeks, on {d}", "Alle {n} Wochen, {d}", "Cada {n} semanas, el {d}", "Ogni {n} settimane, il {d}", "Elke {n} weken, op {d}", "A cada {n} semanas, à {d}", "Co {n} tygodnie, {d}"],
+    "Tâche IA": ["AI task", "KI-Aufgabe", "Tarea de IA", "Compito IA", "AI-taak", "Tarefa de IA", "Zadanie AI"],
+    "Téléversement impossible : {e}": ["Upload failed: {e}", "Hochladen fehlgeschlagen: {e}", "Error al subir: {e}", "Caricamento non riuscito: {e}", "Uploaden mislukt: {e}", "Falha no envio: {e}", "Nie udało się wysłać: {e}"],
+    "Téléverser une image": ["Upload an image", "Bild hochladen", "Subir una imagen", "Carica un'immagine", "Afbeelding uploaden", "Enviar uma imagem", "Prześlij obraz"],
     "Une date de collecte connue": ["A known collection date", "Ein bekanntes Abholdatum", "Una fecha de recogida conocida", "Una data di raccolta nota", "Een bekende ophaaldatum", "Uma data de recolha conhecida", "Znana data odbioru"],
     "Une fois par mois": ["Once a month", "Einmal im Monat", "Una vez al mes", "Una volta al mese", "Eens per maand", "Uma vez por mês", "Raz w miesiącu"],
     "Voir sur la carte": ["Preview on the card", "Auf der Karte ansehen", "Ver en la tarjeta", "Vedi sulla scheda", "Bekijken op de kaart", "Ver no cartão", "Podgląd na karcie"],
+    "Vues": ["Seen", "Gesehen", "Vistos", "Visti", "Gezien", "Vistos", "Widoczne"],
+    "Vérification en cours…": ["Checking…", "Wird geprüft…", "Comprobando…", "Controllo in corso…", "Bezig met controleren…", "A verificar…", "Sprawdzanie…"],
+    "Vérification impossible : {e}": ["Check failed: {e}", "Prüfung fehlgeschlagen: {e}", "Comprobación fallida: {e}", "Controllo non riuscito: {e}", "Controle mislukt: {e}", "Falha na verificação: {e}", "Sprawdzenie nie powiodło się: {e}"],
+    "Vérifier maintenant (test)": ["Check now (test)", "Jetzt prüfen (Test)", "Comprobar ahora (prueba)", "Controlla ora (test)", "Nu controleren (test)", "Verificar agora (teste)", "Sprawdź teraz (test)"],
     "aucune": ["none", "keine", "ninguna", "nessuna", "geen", "nenhuma", "brak"],
     "dernier": ["last", "letzten", "último", "ultimo", "laatste", "último", "ostatni"],
     "{n} date(s) saisie(s)": ["{n} date(s) entered", "{n} Termin(e) eingetragen", "{n} fecha(s) introducida(s)", "{n} data/e inserita/e", "{n} datum/data ingevoerd", "{n} data(s) introduzida(s)", "Wpisane daty: {n}"]
@@ -252,7 +275,7 @@
         const out = a.etat === "sortie";
         return `<div class="bin st-${esc(a.etat)}${anim && !fx ? " an-" + esc(anim) : ""}${fx ? " has-fx" : ""}" data-id="${esc(id)}" data-ent="${esc(s.entity_id)}" data-fx="${fx ? esc(anim.slice(3)) : ""}" style="--c:${esc(a.couleur || "#607d8b")};--ink:${ink(a.couleur)}" title="${esc(a.nom)}">
           <div class="fxh"></div>
-          <div class="pic">${svgBin(a.style)}${out ? `<span class="ok"><ha-icon icon="mdi:check-bold"></ha-icon></span>` : ""}${anim === "camion" && !fx ? `<ha-icon class="truck" icon="mdi:truck"></ha-icon>` : ""}</div>
+          <div class="pic">${a.image ? `<img class="art img" src="${esc(a.image)}" alt="" loading="lazy">` : svgBin(a.style)}${out ? `<span class="ok"><ha-icon icon="mdi:check-bold"></ha-icon></span>` : ""}${anim === "camion" && !fx ? `<ha-icon class="truck" icon="mdi:truck"></ha-icon>` : ""}</div>
           <div class="txt"><div class="nm">${esc(a.nom)}</div>
             <div class="when">${out ? `${esc(_("Sortie"))} ✓` : esc(STATE_TXT(a.etat, days, s.state))}</div>
             ${this._c.show_date !== false && s.state && s.state !== "unknown" && s.state !== "unavailable" ? `<div class="dt"><ha-icon icon="mdi:calendar-blank"></ha-icon>${esc(fmtDate(s.state))}</div>` : ""}
@@ -297,7 +320,8 @@
     _drawSettings(msg = "") {
       const box = this.shadowRoot.getElementById("set"), d = this._draft, s = d.settings;
       const tabs = `<div class="tabs"><button class="tab ${this._tab === "bins" ? "on" : ""}" data-tab="bins"><ha-icon icon="mdi:delete-variant"></ha-icon>${_("Poubelles")}</button>
-        <button class="tab ${this._tab === "notif" ? "on" : ""}" data-tab="notif"><ha-icon icon="mdi:bell-ring-outline"></ha-icon>${_("Rappels")}</button></div>`;
+        <button class="tab ${this._tab === "notif" ? "on" : ""}" data-tab="notif"><ha-icon icon="mdi:bell-ring-outline"></ha-icon>${_("Rappels")}</button>
+        <button class="tab ${this._tab === "cam" ? "on" : ""}" data-tab="cam"><ha-icon icon="mdi:cctv"></ha-icon>${_("Caméra")}</button></div>`;
       let body = "";
       if (this._tab === "bins") {
         body = d.bins.map((b, i) => `<div class="acc ${this._open === i ? "open" : ""}" data-i="${i}" style="--c:${esc(b.color)};--ink:${ink(b.color)}">
@@ -307,6 +331,8 @@
             <ha-icon class="chev" icon="mdi:chevron-${this._open === i ? "up" : "down"}"></ha-icon></div>
           ${this._open === i ? this._binForm(b, i) : ""}</div>`).join("")
           + `<button class="add"><ha-icon icon="mdi:plus"></ha-icon>${_("Ajouter une poubelle")}</button>`;
+      } else if (this._tab === "cam") {
+        body = this._camForm(s);
       } else {
         const svcs = this._cfg.notify_services || [];
         const ordered = [...svcs.filter((x) => x.startsWith("mobile_app_")), ...svcs.filter((x) => !x.startsWith("mobile_app_"))];
@@ -325,6 +351,28 @@
       this._wire(box);
       if (this._tab === "bins" && this._open >= 0 && d.bins[this._open]) this._refreshPreview();
     }
+    _camForm(s) {
+      const h = this._hass, ids = (dom) => Object.keys(h.states).filter((e) => e.startsWith(dom + ".")).sort();
+      const fname = (e) => esc((h.states[e] && h.states[e].attributes.friendly_name) || e);
+      const svcs = this._cfg.notify_services || [], ct = s.camera_targets || [];
+      const ordered = [...svcs.filter((x) => x.startsWith("mobile_app_")), ...svcs.filter((x) => !x.startsWith("mobile_app_"))];
+      const lc = this._cfg.last_check || {}, names = Object.fromEntries((this._draft.bins || []).map((b) => [b.id, b.name]));
+      const last = lc.time ? `<div class="camres"><img src="${esc(lc.image || "")}?v=${encodeURIComponent(lc.time)}" alt="" onerror="this.style.display='none'">
+        <div><b>${_("Dernière vérification")}</b> · ${esc(new Date(lc.time).toLocaleString(NUMLOC, { weekday: "short", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }))}
+        ${lc.error ? `<div class="bad">${esc(lc.error)}</div>` : `<div class="okc">✓ ${_("Vues")} : ${esc((lc.seen || []).map((x) => names[x] || x).join(", ") || "—")}</div>
+        <div class="bad">✗ ${_("Pas vues")} : ${esc((lc.missing || []).map((x) => names[x] || x).join(", ") || "—")}</div>`}</div></div>` : "";
+      return `<div class="hint">${_("La veille de la collecte, à l'heure choisie, la caméra prend une photo et une tâche IA de Home Assistant regarde quelles poubelles sont sorties : celles qu'elle voit sont marquées sorties (plus de relance), pour les autres une alerte part avec la photo.")}</div>
+        <div class="grid2">
+          <label class="fl"><span>${_("Caméra")}</span><select data-c="camera"><option value="">${_("Aucune (vérification désactivée)")}</option>${ids("camera").map((e) => `<option value="${esc(e)}" ${s.camera === e ? "selected" : ""}>${fname(e)}</option>`).join("")}</select></label>
+          <label class="fl"><span>${_("Tâche IA")}</span><select data-c="ai_task"><option value="">${_("Celle par défaut de Home Assistant")}</option>${ids("ai_task").map((e) => `<option value="${esc(e)}" ${s.ai_task === e ? "selected" : ""}>${fname(e)}</option>`).join("")}</select></label>
+          <label class="fl"><span>${_("Heure de la vérification (la veille)")}</span><input type="time" data-c="camera_time" value="${esc(s.camera_time || "20:00")}"></label>
+        </div>
+        <label class="ck"><input type="checkbox" data-c="camera_alert" ${s.camera_alert !== false ? "checked" : ""}><ha-icon icon="mdi:alert-outline"></ha-icon>${_("Alerter avec la photo si des poubelles ne sont pas vues")}</label>
+        <div class="fl"><label>${_("Alerte envoyée à (aucun = les destinataires des rappels)")}</label><div class="chips">${ordered.map((x) => `<label class="chip ${ct.includes(x) ? "on" : ""}"><input type="checkbox" data-ct="${esc(x)}" ${ct.includes(x) ? "checked" : ""}>${esc(x.replace(/^mobile_app_/, "📱 "))}</label>`).join("")}</div></div>
+        ${s.camera ? `<button class="add check"><ha-icon icon="mdi:camera-iris"></ha-icon>${_("Vérifier maintenant (test)")}</button>
+        <div class="hint">${_("Le test enregistre les réglages, prend une photo et interroge l'IA, sans marquer de poubelle ni envoyer d'alerte.")}</div>` : ""}
+        ${last}`;
+    }
     _binForm(b, i) {
       const r = b.rule || {}, src = b.source || "rule", cals = Object.keys(this._hass.states).filter((e) => e.startsWith("calendar.")).sort();
       const seg = (name, cur, opts) => `<div class="seg">${opts.map(([v, l]) => `<button data-seg="${name}" data-v="${v}" class="${String(cur) === String(v) ? "on" : ""}">${esc(_(l))}</button>`).join("")}</div>`;
@@ -335,6 +383,11 @@
           <label class="fl"><span>${_("Nom")}</span><input type="text" data-f="name" value="${esc(b.name)}" maxlength="40"></label>
           <label class="fl"><span>${_("Style du bac")}</span><select data-f="style">${STYLES.map(([v, l]) => `<option value="${v}" ${b.style === v ? "selected" : ""}>${esc(_(l))}</option>`).join("")}</select></label>
         </div>
+        <div class="fl"><label>${_("Image du bac")}</label>${seg("imgmode", b.image || b._img ? "image" : "draw", [["draw", "Dessin HOLM"], ["image", "Image personnalisée"]])}
+          ${b.image || b._img ? `<div class="imgrow">${b.image ? `<img class="imgprev" src="${esc(b.image)}" alt="">` : `<span class="imgprev none"><ha-icon icon="mdi:image-outline"></ha-icon></span>`}
+            <div class="imgf"><input type="text" data-f="image" placeholder="/local/images/ma-poubelle.png" value="${esc(b.image || "")}">
+            <span class="row"><button class="add up"><ha-icon icon="mdi:upload"></ha-icon>${_("Téléverser une image")}</button><input type="file" accept="image/*" class="file" hidden></span>
+            <span class="hint">${_("PNG ou SVG au fond transparent conseillé. Une adresse /local/… (dossier www) ou https://… fonctionne aussi.")}</span></div></div>` : ""}</div>
         <div class="fl"><label>${_("Couleur")}</label><div class="pal">${PALETTE.map((c) => `<button class="sw ${b.color.toLowerCase() === c ? "on" : ""}" data-col="${c}" style="background:${c}"></button>`).join("")}<input type="color" data-f="color" value="${esc(b.color)}"></div></div>
         <div class="fl"><label>${_("Dates de collecte")}</label>${seg("source", src, [["rule", "Récurrence"], ["calendar", "Calendrier"], ["dates", "Dates à la main"]])}</div>
         ${src === "rule" ? `
@@ -374,6 +427,15 @@
         try { await this._hass.callWS({ type: "holm_bins/save", bins: d.bins, settings: s }); const r = await this._hass.callWS({ type: "holm_bins/test" }); this._drawSettings(r.sent ? _("Notification envoyée à {n} appareil(s).", { n: r.sent }) : _("Aucun destinataire valide : cochez au moins un appareil.")); }
         catch (e) { this._drawSettings(_("Envoi impossible : {e}", { e: e.message || e })); }
       });
+      // ---- caméra ----
+      box.querySelectorAll("[data-c]").forEach((inp) => inp.addEventListener("change", () => { const k = inp.dataset.c; s[k] = inp.type === "checkbox" ? inp.checked : inp.value; if (k === "camera") this._drawSettings(); }));
+      box.querySelectorAll("[data-ct]").forEach((c) => c.addEventListener("change", () => { const t = c.dataset.ct, cur = s.camera_targets || []; s.camera_targets = c.checked ? [...new Set([...cur, t])] : cur.filter((x) => x !== t); c.closest(".chip").classList.toggle("on", c.checked); }));
+      const chk = box.querySelector(".check");
+      if (chk) chk.addEventListener("click", async () => {
+        chk.disabled = true; chk.textContent = _("Vérification en cours…");
+        try { await this._hass.callWS({ type: "holm_bins/save", bins: d.bins, settings: s }); const r = await this._hass.callWS({ type: "holm_bins/check" }); this._cfg.last_check = r; this._drawSettings(r.skipped ? _("Rien à vérifier : choisissez une caméra.") : r.error ? _("Vérification impossible : {e}", { e: r.error }) : ""); }
+        catch (e) { this._drawSettings(_("Vérification impossible : {e}", { e: e.message || e })); }
+      });
       // ---- poubelles ----
       box.querySelectorAll(".acch").forEach((h) => h.addEventListener("click", (e) => {
         const i = +h.closest(".acc").dataset.i;
@@ -390,15 +452,18 @@
       });
       const b = cur(); if (!b) return;
       const redraw = () => this._drawSettings(), again = () => this._refreshPreview();
-      box.querySelectorAll("[data-f]").forEach((inp) => inp.addEventListener(inp.type === "text" ? "input" : "change", () => {
+      box.querySelectorAll("[data-f]").forEach((inp) => inp.addEventListener(inp.type === "text" && inp.dataset.f !== "image" ? "input" : "change", () => {
         const k = inp.dataset.f; b[k] = inp.type === "checkbox" ? inp.checked : inp.value;
         if (k === "name") { const t = box.querySelector(".acc.open .acch b"); if (t) t.textContent = inp.value; return; }
+        if (k === "image") { b.image = inp.value.trim(); return redraw(); }
         if (k === "color") return redraw();
         if (k === "calendar" || k === "holidays") again();
       }));
       box.querySelectorAll("[data-col]").forEach((c) => c.addEventListener("click", () => { b.color = c.dataset.col; redraw(); }));
       box.querySelectorAll("[data-seg]").forEach((c) => c.addEventListener("click", () => {
-        if (c.dataset.seg === "source") b.source = c.dataset.v; else b.rule = { ...b.rule, type: c.dataset.v };
+        if (c.dataset.seg === "source") b.source = c.dataset.v;
+        else if (c.dataset.seg === "imgmode") { if (c.dataset.v === "draw") { b.image = ""; b._img = false; } else b._img = true; }
+        else b.rule = { ...b.rule, type: c.dataset.v };
         redraw();
       }));
       box.querySelectorAll("[data-wd]").forEach((c) => c.addEventListener("click", () => {
@@ -423,6 +488,17 @@
         this._preview = `${b.id}|${v}`; this._key = ""; this._render();
         clearTimeout(this._pt); this._pt = setTimeout(() => { this._preview = ""; this._key = ""; this._render(); }, 8000);
       }));
+      const up = box.querySelector(".imgf .up"), file = box.querySelector(".imgf .file");
+      if (up) { up.addEventListener("click", () => file.click()); file.addEventListener("change", async () => {
+        const f = file.files && file.files[0]; if (!f) return;
+        up.disabled = true; up.textContent = _("Envoi…");
+        try {
+          const fd = new FormData(); fd.append("file", f);
+          const r = await fetch("/api/image/upload", { method: "POST", body: fd, headers: { Authorization: `Bearer ${this._hass.auth.data.access_token}` } });
+          if (!r.ok) throw new Error(`${r.status}`);
+          const j = await r.json(); b.image = `/api/image/serve/${j.id}/512x512`; redraw();
+        } catch (e) { this._drawSettings(_("Téléversement impossible : {e}", { e: e.message || e })); }
+      }); }
       const del = box.querySelector(".del");
       if (del) del.addEventListener("click", () => {
         if (del.dataset.sure) { d.bins.splice(this._open, 1); this._open = -1; return redraw(); }
@@ -581,6 +657,16 @@
       .hint { font-size:11.5px; opacity:.7; margin:4px 0 8px; line-height:1.4; }
       .add { display:inline-flex; align-items:center; gap:5px; border:0; border-radius:10px; padding:7px 12px; font:inherit; font-size:12.5px; font-weight:600; cursor:pointer; background: rgba(127,127,127,.14); color:inherit; margin-top:4px; }
       .add ha-icon, .acts ha-icon, .del ha-icon { --mdc-icon-size:16px; }
+      .imgrow { display:flex; gap:10px; align-items:flex-start; margin-top:6px; }
+      .imgprev { width:56px; height:62px; object-fit:contain; border-radius:10px; background: rgba(127,127,127,.12); flex:none; display:grid; place-items:center; }
+      .imgprev.none ha-icon { --mdc-icon-size:26px; opacity:.5; }
+      .imgf { flex:1; display:flex; flex-direction:column; gap:6px; } .imgf .add { margin:0; }
+      .art.img { object-fit:contain; display:block; filter: drop-shadow(0 3px 3px rgba(0,0,0,.3)); }
+      .an-couvercle .art.img { animation: b-tilt 2.8s ease-in-out infinite; transform-origin: 50% 100%; }
+      @keyframes b-tilt { 0%,55%,100% { transform: rotate(0); } 70% { transform: rotate(-6deg) translateY(-2px); } 85% { transform: rotate(4deg); } }
+      .camres { display:flex; gap:10px; align-items:flex-start; margin-top:10px; padding:8px; border-radius:10px; background: rgba(127,127,127,.1); font-size:12.5px; line-height:1.5; }
+      .camres img { width:140px; border-radius:8px; flex:none; }
+      .okc { color:#4caf50; } .bad { color: var(--warning-color, #ffa000); }
       .del { display:inline-flex; align-items:center; gap:5px; border:0; border-radius:10px; padding:6px 10px; font:inherit; font-size:12px; cursor:pointer; background: color-mix(in srgb, var(--error-color, #e53935) 18%, transparent); color: var(--error-color, #e53935); }
       .msg { margin-top:8px; font-size:12.5px; color: var(--warning-color, #ffa000); }
       .acts { display:flex; justify-content:flex-end; gap:8px; margin-top:12px; }

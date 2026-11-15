@@ -18,6 +18,8 @@ HOLM Bins knows the collection days of each of your bins: a **recurrence** (ever
 - 🔔 **Reminder the day before** at the time you choose, **follow-up** if the bin is not out yet, optional reminder on the morning itself. Can be turned on **bin by bin**.
 - ✅ **"Done" button** in the notification, tap on the card, switch or automation: the bin is **out**, no more follow-ups.
 - ✨ **Animation of your choice for the day before, collection day and once put out**: 8 built-in animations, plus every ambience of [HOLM FX](https://github.com/kaaribou/holm-fx-card) when it is installed.
+- 📷 **Camera check**: on the evening before, an AI task looks at your camera; bins it sees are marked out, otherwise an alert is sent with the photo.
+- 🖼️ **Your own bin image**, instead of the drawing, bin by bin.
 - 📥 **Imports your calendars** at setup: one bin per calendar, turned into a recurrence when collections are regular.
 - 🌍 **8 languages**: French, English, German, Spanish, Italian, Dutch, Portuguese, Polish.
 
@@ -26,6 +28,11 @@ HOLM Bins knows the collection days of each of your bins: a **recurrence** (ever
 | ![The HOLM Bins card](docs/images/carte.png) | ![Bin states](docs/images/apercu-etats.png) |
 
 > Screenshots are in French; the card follows your Home Assistant profile language.
+
+### 🆕 What's new in 1.1.0
+
+- 🖼️ **Custom bin image**: upload your image from the card (or give an address) to replace the drawing. See [Bin image](#bin-image).
+- 📷 **Camera check**: on the day before, at the chosen time, the camera and an AI task check that the bins are out; alert with the photo otherwise. See [Camera check](#camera-check).
 
 ---
 
@@ -55,7 +62,7 @@ Each bin is a device with four entities (`<bin>` = id derived from the name, e.g
 
 | Entity | Value |
 |---|---|
-| `sensor.<bin>_prochaine_collecte` | Next collection date. Attributes: `jours` (days), `etat` (state), `sortie` (out), `a_sortir` (due), `prochaines_dates` (next 6), `couleur`, `style`, `notification`, `animation_veille`, `animation_jour`, `animation_sortie`, `source` |
+| `sensor.<bin>_prochaine_collecte` | Next collection date. Attributes: `jours` (days), `etat` (state), `sortie` (out), `a_sortir` (due), `prochaines_dates` (next 6), `couleur`, `style`, `image`, `notification`, `animation_veille`, `animation_jour`, `animation_sortie`, `source` |
 | `sensor.<bin>_jours` | Days until the collection (0 = today) |
 | `binary_sensor.<bin>_a_sortir` | On the day before from the reminder time, and on collection day until the end time, as long as the bin is not out |
 | `switch.<bin>_sortie` | Bin put out for the next collection. Resets itself after the collection |
@@ -88,6 +95,8 @@ actions:
       entity_id: switch.yellow_bin_sortie
 ```
 
+**Action** `holm_bins.check_camera`: runs the camera check right away (see below), with the same effect as at the scheduled time.
+
 ## Reminders
 
 **Reminders** tab of the card settings:
@@ -105,6 +114,40 @@ Bins of the same collection are grouped into **one notification**. On the mobile
 
 ![Reminder settings](docs/images/reglages-rappels.png)
 
+## Camera check
+
+Do you put the bins out the evening before? A camera that sees the entrance can check it is done. **Camera** tab of the card settings:
+
+| Setting | Purpose | Default |
+|---|---|---|
+| **Camera** | The camera that sees where the bins are left. "None" turns the check off | none |
+| **AI task** | The Home Assistant AI task entity that analyses the photo (Google Gemini, OpenAI, Ollama…). Empty: the default one set in Home Assistant | default |
+| **Check time (the day before)** | Time the photo is taken, the day before each collection | 20:00 |
+| **Alert with the photo if bins are not seen** | Sends the "📷 Bins not out" alert with the photo and the "Done" button | yes |
+| **Alert sent to** | Alert recipients; none ticked = the reminder recipients | none |
+| **Check now (test)** | Saves the settings, takes a photo and asks the AI right away, without marking any bin or sending an alert | |
+| **Last check** | The photo of the last check, its time, bins seen ✓ and not seen ✗ (or the error met) | |
+
+**What happens**: only bins that are due and not yet marked out are checked. The AI task gets the photo and the list of bins (name, colour, style) and answers, for each, whether it is visible. Bins it sees are **marked out**: no more follow-ups for them. For the others, the **alert** is sent. A `holm_bins_verification` event (`seen`, `missing`, `names_missing`, `image`, `error`) lets you add your own announcements (LaMetric, TTS…). The photo is saved to `www/holm_bins/derniere_verification.jpg`.
+
+> You need an integration that provides an **AI task** (*Settings → Devices & services*, e.g. Google Gemini or OpenAI). Results depend on the camera and the lighting: at night, an infrared camera makes colours hard to tell apart.
+
+```yaml
+# Example: announce on another device the bins the camera cannot see
+triggers:
+  - trigger: event
+    event_type: holm_bins_verification
+conditions:
+  - condition: template
+    value_template: "{{ trigger.event.data.missing | count > 0 }}"
+actions:
+  - action: notify.mobile_app_tablet
+    data:
+      message: "Not out yet: {{ trigger.event.data.names_missing | join(', ') }}"
+```
+
+![The Camera tab](docs/images/reglages-camera.png)
+
 ## The HOLM Bins card
 
 Added to the dashboard resources automatically: add the **HOLM Bins** card.
@@ -121,7 +164,7 @@ For each bin:
 
 | Element | Meaning |
 |---|---|
-| **The bin** | Drawn in the bin's colour, in the chosen style: wheelie bin, recycling bin (recycle symbol), food / garden waste bin (leaf), paper / cardboard bin (box), glass bank (bottle) or bag |
+| **The bin** | Drawn in the bin's colour, in the chosen style: wheelie bin, recycling bin (recycle symbol), food / garden waste bin (leaf), paper / cardboard bin (box), glass bank (bottle) or bag. Or your own image (see [Bin image](#bin-image)) |
 | **The name** | Written in the bin's colour |
 | **The delay** | "In 10 days", "Tomorrow", "Today", "Out ✓" or "No collection scheduled". It takes the bin's colour the day before and on collection day, and turns green once out |
 | **The date** 📅 | Day of the next collection ("Wed 18/11") |
@@ -147,6 +190,8 @@ Each bin has three animations, chosen in its settings: **the day before**, **col
 | Passing truck | A small truck drives across the bottom of the box |
 | Success tick | The green tick bounces with a ripple around it (meant for "once out") |
 
+With a custom image, "Lid opening" becomes a gentle sway of the image; the other animations stay the same.
+
 **With [HOLM FX](https://github.com/kaaribou/holm-fx-card)** installed, all its ambiences (Garden, Flames, Radar, Golden stars, Fireworks…) are added to the list and play in the background of the bin's box. The ▶ button next to each animation shows it on the card for 8 seconds. Animations stop when the device asks for reduced motion.
 
 ### Bin settings (⚙ gear)
@@ -157,6 +202,7 @@ Each bin has three animations, chosen in its settings: **the day before**, **col
 |---|---|
 | **Name** | Displayed name and device name |
 | **Bin style** | Shape and symbol of the drawn bin |
+| **Bin image** | **HOLM drawing** (the bin drawn in the chosen colour) or **Custom image** (see below) |
 | **Colour** | 10 ready-made colours, or any colour with the picker |
 | **Collection dates** | **Recurrence**, **Calendar** (any Home Assistant calendar: local, ICS, Google…) or **Manual dates** |
 | **Weekly** / **Once a month** | Recurrence type |
@@ -175,6 +221,16 @@ Each bin has three animations, chosen in its settings: **the day before**, **col
 **Add a bin** creates a new one (every week, on today's weekday). **Save** applies everything at once, without a restart.
 
 ![Bin settings](docs/images/reglages-poubelles.png)
+
+### Bin image
+
+In a bin's settings, choose **Custom image**:
+
+- **Upload an image**: pick a file on your device. It is stored in Home Assistant (like the images of Image cards) and becomes the bin image right away.
+- or enter an **address**: `/local/images/my-bin.png` for a file in the `www` folder, or an `https://…` address.
+- The **preview** on the left shows the chosen image. Going back to **HOLM drawing** removes the image.
+
+A **PNG or SVG with a transparent background**, roughly square, looks best. It keeps the green "out" tick, the delay, the date and the animations.
 
 ### Card options
 

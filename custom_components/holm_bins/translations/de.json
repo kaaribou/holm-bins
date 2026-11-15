@@ -37,5 +37,11 @@
         "name": "Rausgestellt"
       }
     }
+  },
+  "services": {
+    "check_camera": {
+      "name": "Tonnen per Kamera prüfen",
+      "description": "Macht ein Foto mit der gewählten Kamera und fragt die KI-Aufgabe, welche fälligen Tonnen sichtbar sind: gesehene werden als rausgestellt markiert, die anderen lösen die Warnung aus."
+    }
   }
 }

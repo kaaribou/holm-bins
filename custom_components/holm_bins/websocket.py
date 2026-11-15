@@ -16,7 +16,7 @@ def _entry(hass: HomeAssistant):
 
 @callback
 def async_register(hass: HomeAssistant) -> None:
-    for cmd in (ws_get, ws_save, ws_preview, ws_out, ws_test):
+    for cmd in (ws_get, ws_save, ws_preview, ws_out, ws_test, ws_check):
         websocket_api.async_register_command(hass, cmd)
 
 
@@ -35,7 +35,7 @@ def ws_get(hass, connection, msg):
     connection.send_result(msg["id"], {
         "bins": m.bins, "settings": m.settings, "admin": connection.user.is_admin,
         "notify_services": [s for s in notify if s not in ("send_message", "persistent_notification")],
-        "styles": list(STYLES), "sources": list(SOURCES),
+        "styles": list(STYLES), "sources": list(SOURCES), "last_check": m.last_check,
     })
 
 
@@ -83,3 +83,14 @@ async def ws_test(hass, connection, msg):
     if not entry:
         return _not_loaded(connection, msg)
     connection.send_result(msg["id"], {"sent": await entry.runtime_data.async_test_notification()})
+
+
+@websocket_api.require_admin
+@websocket_api.websocket_command({vol.Required("type"): "holm_bins/check"})
+@websocket_api.async_response
+async def ws_check(hass, connection, msg):
+    """Vérification par caméra à la demande (test : ne marque rien comme sorti et n'envoie pas d'alerte)."""
+    entry = _entry(hass)
+    if not entry:
+        return _not_loaded(connection, msg)
+    connection.send_result(msg["id"], await entry.runtime_data.async_camera_check(force=True))

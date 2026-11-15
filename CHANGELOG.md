@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.0
+- **Image personnalisée du bac** : chaque poubelle peut afficher votre propre image (téléversée depuis la carte, ou une adresse `/local/…` / `https://…`) à la place du dessin HOLM. Les animations s'appliquent aussi à l'image (le « couvercle qui s'ouvre » devient un balancement).
+- **Vérification par caméra** : la veille de la collecte, à l'heure choisie, une photo de la caméra est analysée par une tâche IA de Home Assistant. Les poubelles vues sont marquées sorties (plus de relance) ; pour les autres, une alerte part avec la photo et le bouton « C'est fait ».
+  - Nouvel onglet **Caméra** dans les réglages de la carte : caméra, tâche IA, heure, alerte et destinataires, test immédiat et résultat de la dernière vérification avec sa photo.
+  - Nouvelle action `holm_bins.check_camera` et nouvel évènement `holm_bins_verification` (`seen`, `missing`, `names_missing`, `image`).
+- Nouvel attribut `image` sur `sensor.<poubelle>_prochaine_collecte`.
+- Traductions dans les 8 langues.
+
 ## 1.0.0
 - Première version.
 - **Poubelles** : une par appareil, avec `sensor.<poubelle>_prochaine_collecte`, `sensor.<poubelle>_jours`, `binary_sensor.<poubelle>_a_sortir` et `switch.<poubelle>_sortie`.

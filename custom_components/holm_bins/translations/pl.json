@@ -37,5 +37,11 @@
         "name": "Wystawiony"
       }
     }
+  },
+  "services": {
+    "check_camera": {
+      "name": "Sprawdź kosze kamerą",
+      "description": "Robi zdjęcie wybraną kamerą i pyta zadanie AI, które kosze do wystawienia są widoczne: widoczne są oznaczane jako wystawione, pozostałe wywołują alert."
+    }
   }
 }

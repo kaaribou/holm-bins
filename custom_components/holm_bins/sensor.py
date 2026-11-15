@@ -47,6 +47,7 @@ class NextSensor(BinEntity, SensorEntity):
             "couleur": c.get("color"),
             "style": c.get("style"),
             "icone": c.get("icon") or None,
+            "image": c.get("image") or None,
             "notification": c.get("notify"),
             "animation_veille": c.get("anim_eve") or None,
             "animation_jour": c.get("anim_today") or None,

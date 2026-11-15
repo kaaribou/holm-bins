@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import copy
 import logging
+import os
 import re
 import unicodedata
 from datetime import date, datetime, timedelta
@@ -13,7 +14,7 @@ from homeassistant.helpers.event import async_track_state_change_event, async_tr
 from homeassistant.helpers.storage import Store
 from homeassistant.util import dt as dt_util
 
-from .const import (ACTION_DONE, DEFAULT_BIN, DEFAULT_SETTINGS, EVENT_DUE, EVENT_NOTIFY_ACTION, NOTIF, SRC_CALENDAR, SRC_RULE,
+from .const import (ACTION_DONE, DEFAULT_BIN, DEFAULT_SETTINGS, EVENT_CHECK, EVENT_DUE, EVENT_NOTIFY_ACTION, NOTIF, SNAPSHOT, SNAPSHOT_URL, SRC_CALENDAR, SRC_RULE,
                     ST_EVE, ST_LATER, ST_NONE, ST_OUT, ST_SOON, ST_TODAY, STORE_KEY, STORE_VERSION, WEEKDAYS)
 from .recurrence import HORIZON, compute, detect_rule, parse_date
 
@@ -46,6 +47,7 @@ def clean_bin(raw: dict, existing_ids: set[str]) -> dict:
     b["extra"] = sorted({d.isoformat() for d in (parse_date(x) for x in b.get("extra") or []) if d})
     b["skip"] = sorted({d.isoformat() for d in (parse_date(x) for x in b.get("skip") or []) if d})
     b["name"] = str(b.get("name") or "Poubelle").strip()[:40]
+    b["image"] = str(b.get("image") or "").strip()[:500]
     if not re.match(r"^#[0-9a-fA-F]{6}$", str(b.get("color") or "")):
         b["color"] = DEFAULT_BIN["color"]
     bid = b.get("id")
@@ -73,12 +75,14 @@ class BinsManager:
         self._listeners: list[Callable] = []
         self._unsubs: list[Callable] = []
         self._day: date | None = None
+        self.last_check: dict = {}               # résultat de la dernière vérification par caméra
 
     # ---------- chargement / enregistrement ----------
     async def async_load(self) -> None:
         data = await self._store.async_load() or {}
         self.settings = {**DEFAULT_SETTINGS, **(data.get("settings") or {})}
         self.out = dict(data.get("out") or {})
+        self.last_check = dict(data.get("last_check") or {})
         ids: set[str] = set()
         for raw in data.get("bins") or []:
             b = clean_bin(raw, ids)
@@ -89,7 +93,7 @@ class BinsManager:
             await self.async_save()
 
     async def async_save(self) -> None:
-        await self._store.async_save({"bins": self.bins, "settings": self.settings, "out": self.out})
+        await self._store.async_save({"bins": self.bins, "settings": self.settings, "out": self.out, "last_check": self.last_check})
 
     async def _import(self, calendars: list[str], detect: bool) -> None:
         """Première installation : une poubelle par calendrier choisi, convertie en récurrence si elle est régulière."""
@@ -125,6 +129,8 @@ class BinsManager:
         if settings is not None:
             s = {**DEFAULT_SETTINGS, **{k: v for k, v in settings.items() if k in DEFAULT_SETTINGS}}
             s["targets"] = [str(t).removeprefix("notify.") for t in s.get("targets") or []]
+            s["camera_targets"] = [str(t).removeprefix("notify.") for t in s.get("camera_targets") or []]
+            s["camera_alert"] = bool(s.get("camera_alert", True))
             self.settings = s
         self.out = {k: v for k, v in self.out.items() if k in ids}
         await self.async_save()
@@ -253,6 +259,8 @@ class BinsManager:
             self._send("reminder", now)
         if s.get("morning") and hm == s["morning"][:5]:
             self._send("today", now)
+        if s.get("camera") and hm == (s.get("camera_time") or "")[:5]:
+            self.hass.async_create_task(self.async_camera_check())
 
     # ---------- sorties ----------
     def set_out(self, bin_id: str, value: bool) -> None:
@@ -303,7 +311,10 @@ class BinsManager:
         data = {"title": title, "message": msg,
                 "data": {"tag": "holm_bins", "ttl": 0, "priority": "high", "notification_icon": "mdi:delete-empty",
                          "actions": [{"action": f"{ACTION_DONE}|{','.join(b['id'] for b in bins)}", "title": t["done"]}]}}
-        for target in self.settings.get("targets") or []:
+        self._notify(self.settings.get("targets") or [], data)
+
+    def _notify(self, targets: list[str], data: dict) -> None:
+        for target in targets:
             if self.hass.services.has_service("notify", target):
                 self.hass.async_create_task(self.hass.services.async_call("notify", target, data))
             else:
@@ -324,6 +335,63 @@ class BinsManager:
                 await self.hass.services.async_call("notify", target, data)
                 n += 1
         return n
+
+    # ---------- vérification par caméra ----------
+    def _check_bins(self, force: bool) -> list[dict]:
+        """Poubelles à vérifier : celles à sortir (veille ou jour J) et pas encore sorties ; en test, toutes."""
+        due = [b for b in self.bins if (i := self.info.get(b["id"])) and i["days"] in (0, 1) and not i["out"]]
+        return due or (list(self.bins) if force else [])
+
+    async def async_camera_check(self, force: bool = False) -> dict:
+        """Photo de la caméra, puis une tâche IA dit quelles poubelles sont visibles. Vues : sorties ; absentes : alerte."""
+        s = self.settings
+        cam = s.get("camera")
+        bins = self._check_bins(force)
+        if not cam or not bins:
+            return {"skipped": True, "reason": "no_camera" if not cam else "nothing_due"}
+        now = dt_util.now()
+        result: dict = {"time": now.isoformat(timespec="minutes"), "seen": [], "missing": [], "error": None, "image": SNAPSHOT_URL}
+        try:
+            path = self.hass.config.path(SNAPSHOT)
+            await self.hass.async_add_executor_job(lambda: os.makedirs(os.path.dirname(path), exist_ok=True))
+            await self.hass.services.async_call("camera", "snapshot", {"entity_id": cam, "filename": path}, blocking=True)
+            names = "\n".join(f"- {b['id']} : {b['name']} (couleur {b['color']}, {b['style'].replace('_', ' ')})" for b in bins)
+            data = {
+                "task_name": "HOLM Poubelles",
+                "instructions": ("Regarde l'image de la caméra et dis, pour chaque poubelle de la liste, si elle est visible "
+                                 "(sortie devant la maison, sur le trottoir ou à l'entrée). Réponds uniquement vrai ou faux pour chaque poubelle.\n" + names),
+                "attachments": [{"media_content_id": f"media-source://camera/{cam}", "media_content_type": "image/jpeg"}],
+                "structure": {b["id"]: {"description": f"{b['name']} visible", "required": True, "selector": {"boolean": {}}} for b in bins},
+            }
+            if s.get("ai_task"):
+                data["entity_id"] = s["ai_task"]
+            resp = await self.hass.services.async_call("ai_task", "generate_data", data, blocking=True, return_response=True)
+            answer = (resp or {}).get("data") or {}
+            for b in bins:
+                v = answer.get(b["id"])
+                seen = v is True or str(v).strip().lower() in ("true", "oui", "yes", "1", "vrai")
+                result["seen" if seen else "missing"].append(b["id"])
+        except Exception as err:  # noqa: BLE001 — caméra ou IA indisponible : on le signale sans bloquer les rappels
+            _LOGGER.warning("Vérification caméra impossible : %s", err)
+            result["error"] = str(err)
+        self.last_check = result
+        if not result["error"] and not force:
+            for bid in result["seen"]:
+                self.set_out(bid, True)
+        await self.async_save()
+        names = {b["id"]: b["name"] for b in self.bins}
+        self.hass.bus.async_fire(EVENT_CHECK, {"seen": result["seen"], "missing": result["missing"], "names_missing": [names[i] for i in result["missing"]],
+                                               "error": result["error"], "image": SNAPSHOT_URL, "test": force})
+        if result["missing"] and s.get("camera_alert", True) and not result["error"] and not force:
+            lang = self._lang()
+            t = NOTIF[lang]
+            data = {"title": t["cam_title"], "message": t["cam_missing"].format(bins=self._join([names[i] for i in result["missing"]], lang)),
+                    "data": {"tag": "holm_bins", "ttl": 0, "priority": "high", "image": f"{SNAPSHOT_URL}?v={int(now.timestamp())}",
+                             "notification_icon": "mdi:cctv", "push": {"interruption-level": "time-sensitive"},
+                             "actions": [{"action": f"{ACTION_DONE}|{','.join(result['missing'])}", "title": t["done"]}]}}
+            self._notify(s.get("camera_targets") or s.get("targets") or [], data)
+        self._notify_listeners()
+        return result
 
     # ---------- lecture ----------
     def bin(self, bin_id: str) -> dict | None:

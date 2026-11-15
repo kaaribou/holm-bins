@@ -37,5 +37,11 @@
         "name": "Sortie"
       }
     }
+  },
+  "services": {
+    "check_camera": {
+      "name": "Vérifier les poubelles par caméra",
+      "description": "Prend une photo avec la caméra choisie et demande à la tâche IA quelles poubelles à sortir sont visibles : celles vues sont marquées sorties, les autres déclenchent l'alerte."
+    }
   }
 }

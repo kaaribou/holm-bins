@@ -18,12 +18,19 @@ HOLM Poubelles connaît les jours de collecte de chacune de vos poubelles : une 
 - 🔔 **Rappel la veille** à l'heure choisie, **relance** si la poubelle n'est pas sortie, rappel le matin même en option. Activable **poubelle par poubelle**.
 - ✅ **Bouton « C'est fait »** dans la notification, appui sur la carte, interrupteur ou automatisation : la poubelle est **sortie**, plus de relance.
 - ✨ **Animation au choix pour la veille, le jour de collecte et une fois sortie** : 8 animations intégrées, et toutes les ambiances de [HOLM FX](https://github.com/kaaribou/holm-fx-card) si elle est installée.
+- 📷 **Vérification par caméra** : la veille au soir, une tâche IA regarde la caméra ; les poubelles vues sont marquées sorties, sinon une alerte part avec la photo.
+- 🖼️ **Votre propre image de bac**, à la place du dessin, poubelle par poubelle.
 - 📥 **Reprise de vos calendriers** à l'installation : une poubelle par calendrier, convertie en récurrence quand les collectes sont régulières.
 - 🌍 **8 langues** : français, anglais, allemand, espagnol, italien, néerlandais, portugais, polonais.
 
 | La carte | Les états : sortie, demain, aujourd'hui (avec HOLM FX) |
 |---|---|
 | ![La carte HOLM Poubelles](docs/images/carte.png) | ![Les états des poubelles](docs/images/apercu-etats.png) |
+
+### 🆕 Nouveautés de la 1.1.0
+
+- 🖼️ **Image personnalisée du bac** : téléversez votre image depuis la carte (ou indiquez une adresse) pour remplacer le dessin. Voir [Image du bac](#image-du-bac).
+- 📷 **Vérification par caméra** : la veille, à l'heure choisie, la caméra et une tâche IA vérifient que les poubelles sont sorties ; alerte avec la photo sinon. Voir [La vérification par caméra](#la-vérification-par-caméra).
 
 ---
 
@@ -53,7 +60,7 @@ Chaque poubelle est un appareil, avec quatre entités (`<poubelle>` = identifian
 
 | Entité | Valeur |
 |---|---|
-| `sensor.<poubelle>_prochaine_collecte` | Date de la prochaine collecte. Attributs : `jours`, `etat`, `sortie`, `a_sortir`, `prochaines_dates` (6 prochaines), `couleur`, `style`, `notification`, `animation_veille`, `animation_jour`, `animation_sortie`, `source` |
+| `sensor.<poubelle>_prochaine_collecte` | Date de la prochaine collecte. Attributs : `jours`, `etat`, `sortie`, `a_sortir`, `prochaines_dates` (6 prochaines), `couleur`, `style`, `image`, `notification`, `animation_veille`, `animation_jour`, `animation_sortie`, `source` |
 | `sensor.<poubelle>_jours` | Nombre de jours avant la collecte (0 = aujourd'hui) |
 | `binary_sensor.<poubelle>_a_sortir` | Allumé la veille à partir de l'heure du rappel, et le jour de collecte jusqu'à l'heure de fin, tant que la poubelle n'est pas sortie |
 | `switch.<poubelle>_sortie` | Poubelle sortie pour la prochaine collecte. Se remet à zéro tout seul après la collecte |
@@ -86,6 +93,8 @@ actions:
       entity_id: switch.poubelle_jaune_sortie
 ```
 
+**Action** `holm_bins.check_camera` : lance tout de suite la vérification par caméra (voir plus bas), avec le même effet qu'à l'heure prévue.
+
 ## Les rappels
 
 Onglet **Rappels** des réglages de la carte :
@@ -103,6 +112,40 @@ Les poubelles d'une même collecte sont regroupées dans **une seule notificatio
 
 ![Les réglages des rappels](docs/images/reglages-rappels.png)
 
+## La vérification par caméra
+
+Vous sortez les poubelles la veille au soir ? Une caméra qui voit l'entrée peut vérifier que c'est fait. Onglet **Caméra** des réglages de la carte :
+
+| Réglage | Rôle | Par défaut |
+|---|---|---|
+| **Caméra** | La caméra qui voit l'endroit où les poubelles sont déposées. « Aucune » désactive la vérification | aucune |
+| **Tâche IA** | L'entité de tâche IA de Home Assistant qui analyse la photo (Google Gemini, OpenAI, Ollama…). Vide : celle choisie par défaut dans Home Assistant | par défaut |
+| **Heure de la vérification (la veille)** | Heure à laquelle la photo est prise, la veille de chaque collecte | 20:00 |
+| **Alerter avec la photo si des poubelles ne sont pas vues** | Envoie l'alerte « 📷 Poubelles pas sorties » avec la photo et le bouton « C'est fait » | oui |
+| **Alerte envoyée à** | Destinataires de l'alerte ; aucun coché = les destinataires des rappels | aucun |
+| **Vérifier maintenant (test)** | Enregistre les réglages, prend une photo et interroge l'IA tout de suite, sans marquer de poubelle ni envoyer d'alerte | |
+| **Dernière vérification** | La photo de la dernière vérification, son heure, les poubelles vues ✓ et pas vues ✗ (ou l'erreur rencontrée) | |
+
+**Ce qui se passe** : la vérification ne porte que sur les poubelles à sortir et pas encore marquées sorties. La tâche IA reçoit la photo et la liste des poubelles (nom, couleur, style) et répond, pour chacune, si elle est visible. Les poubelles vues sont **marquées sorties** : plus de relance pour elles. Pour les autres, l'**alerte** part. Un évènement `holm_bins_verification` (`seen`, `missing`, `names_missing`, `image`, `error`) permet d'ajouter vos propres annonces (LaMetric, TTS…). La photo est enregistrée dans `www/holm_bins/derniere_verification.jpg`.
+
+> Il faut une intégration qui fournit une **tâche IA** (*Paramètres → Appareils et services*, par exemple Google Gemini ou OpenAI). La qualité dépend de la caméra et de l'éclairage : de nuit, une caméra infrarouge rend les couleurs difficiles à distinguer.
+
+```yaml
+# Exemple : annoncer sur un autre appareil les poubelles que la caméra ne voit pas
+triggers:
+  - trigger: event
+    event_type: holm_bins_verification
+conditions:
+  - condition: template
+    value_template: "{{ trigger.event.data.missing | count > 0 }}"
+actions:
+  - action: notify.mobile_app_tablette
+    data:
+      message: "Pas encore sorties : {{ trigger.event.data.names_missing | join(', ') }}"
+```
+
+![L'onglet Caméra](docs/images/reglages-camera.png)
+
 ## La carte HOLM Poubelles
 
 Ajoutée automatiquement aux ressources du tableau de bord : ajoutez la carte **HOLM Poubelles**.
@@ -119,7 +162,7 @@ Pour chaque poubelle :
 
 | Élément | Signification |
 |---|---|
-| **Le bac** | Dessiné à la couleur de la poubelle, dans le style choisi : bac roulant, bac de tri (symbole recyclage), bac biodéchets (feuille), bac papier / carton (carton), conteneur à verre (bouteille) ou sac |
+| **Le bac** | Dessiné à la couleur de la poubelle, dans le style choisi : bac roulant, bac de tri (symbole recyclage), bac biodéchets (feuille), bac papier / carton (carton), conteneur à verre (bouteille) ou sac. Ou votre propre image (voir [Image du bac](#image-du-bac)) |
 | **Le nom** | Écrit dans la couleur de la poubelle |
 | **Le délai** | « Dans 10 jours », « Demain », « Aujourd'hui », « Sortie ✓ » ou « Aucune collecte prévue ». Il prend la couleur de la poubelle la veille et le jour J, et devient vert une fois sortie |
 | **La date** 📅 | Jour de la prochaine collecte (« mer. 18/11 ») |
@@ -145,6 +188,8 @@ Chaque poubelle a trois animations, choisies dans ses réglages : **la veille (J
 | Camion qui passe | Un petit camion traverse le bas de la case |
 | Coche de réussite | La coche verte rebondit et une onde l'entoure (prévue pour « une fois sortie ») |
 
+Avec une image personnalisée, « Couvercle qui s'ouvre » devient un léger balancement de l'image ; les autres animations restent les mêmes.
+
 **Avec [HOLM FX](https://github.com/kaaribou/holm-fx-card)** installée, toutes ses ambiances (Jardin, Flammes, Radar, Étoiles dorées, Feux d'artifice…) s'ajoutent à la liste et s'affichent en fond de la case de la poubelle. Le bouton ▶ à côté de chaque animation la montre 8 secondes sur la carte. Les animations s'arrêtent si l'appareil demande à réduire les animations.
 
 ### Les réglages des poubelles (roue crantée ⚙)
@@ -155,6 +200,7 @@ Onglet **Poubelles** : une ligne par poubelle (couleur, nom, résumé des dates)
 |---|---|
 | **Nom** | Nom affiché et nom de l'appareil |
 | **Style du bac** | Forme et symbole du bac dessiné |
+| **Image du bac** | **Dessin HOLM** (le bac dessiné à la couleur choisie) ou **Image personnalisée** (voir ci-dessous) |
 | **Couleur** | 10 couleurs prêtes à l'emploi, ou n'importe quelle couleur avec le sélecteur |
 | **Dates de collecte** | **Récurrence**, **Calendrier** (un calendrier Home Assistant : local, ICS, Google…) ou **Dates à la main** |
 | **Toutes les semaines** / **Une fois par mois** | Type de récurrence |
@@ -173,6 +219,16 @@ Onglet **Poubelles** : une ligne par poubelle (couleur, nom, résumé des dates)
 **Ajouter une poubelle** en crée une nouvelle (chaque semaine, le jour d'aujourd'hui). **Enregistrer** applique tout immédiatement, sans redémarrage.
 
 ![Les réglages d'une poubelle](docs/images/reglages-poubelles.png)
+
+### Image du bac
+
+Dans les réglages d'une poubelle, choisissez **Image personnalisée** :
+
+- **Téléverser une image** : choisissez un fichier sur votre appareil. Il est enregistré dans Home Assistant (comme les images des cartes Image) et sert aussitôt d'image au bac.
+- ou indiquez une **adresse** : `/local/images/ma-poubelle.png` pour un fichier du dossier `www`, ou une adresse `https://…`.
+- L'**aperçu** à gauche montre l'image retenue. Revenir sur **Dessin HOLM** retire l'image.
+
+Une image **PNG ou SVG au fond transparent**, à peu près carrée, donne le meilleur rendu. Elle garde la coche verte « sortie », le délai, la date et les animations.
 
 ### Options de la carte
 

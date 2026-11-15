@@ -37,5 +37,11 @@
         "name": "Put out"
       }
     }
+  },
+  "services": {
+    "check_camera": {
+      "name": "Check bins with the camera",
+      "description": "Takes a picture with the chosen camera and asks the AI task which due bins are visible: those seen are marked out, the others trigger the alert."
+    }
   }
 }

@@ -37,5 +37,11 @@
         "name": "Sacado"
       }
     }
+  },
+  "services": {
+    "check_camera": {
+      "name": "Comprobar los cubos con la cámara",
+      "description": "Toma una foto con la cámara elegida y pregunta a la tarea de IA qué cubos pendientes se ven: los vistos se marcan como sacados y los demás activan la alerta."
+    }
   }
 }

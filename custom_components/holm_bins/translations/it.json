@@ -37,5 +37,11 @@
         "name": "Portato fuori"
       }
     }
+  },
+  "services": {
+    "check_camera": {
+      "name": "Controlla i bidoni con la telecamera",
+      "description": "Scatta una foto con la telecamera scelta e chiede al compito IA quali bidoni da portare fuori sono visibili: quelli visti sono segnati come fuori, gli altri attivano l'avviso."
+    }
   }
 }

@@ -37,5 +37,11 @@
         "name": "Na rua"
       }
     }
+  },
+  "services": {
+    "check_camera": {
+      "name": "Verificar os contentores com a câmara",
+      "description": "Tira uma foto com a câmara escolhida e pergunta à tarefa de IA que contentores pendentes estão visíveis: os vistos ficam marcados como na rua, os outros disparam o alerta."
+    }
   }
 }

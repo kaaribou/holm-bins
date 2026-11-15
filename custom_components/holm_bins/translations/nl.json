@@ -37,5 +37,11 @@
         "name": "Buitengezet"
       }
     }
+  },
+  "services": {
+    "check_camera": {
+      "name": "Containers controleren met de camera",
+      "description": "Maakt een foto met de gekozen camera en vraagt de AI-taak welke containers zichtbaar zijn: geziene worden als buiten gemarkeerd, de andere activeren de waarschuwing."
+    }
   }
 }
