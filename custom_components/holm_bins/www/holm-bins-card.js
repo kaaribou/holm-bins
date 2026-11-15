@@ -461,8 +461,15 @@
       .gear:hover { opacity:1; background: rgba(127,127,127,.18); } .gear ha-icon { --mdc-icon-size:18px; display:block; }
       .bins > .gear { position:absolute; top:6px; right:6px; z-index:3; }
       .bins { display:flex; gap:8px; }
-      ha-card[data-layout="row"] .bins { flex-wrap:wrap; justify-content:space-around; }
-      ha-card[data-layout="row"] .bin { flex:1 1 90px; max-width:180px; flex-direction:column; text-align:center; }
+      ha-card { container-type: inline-size; }
+      ha-card[data-layout="row"] .bins { flex-wrap:wrap; justify-content:space-around; gap:4px; }
+      ha-card[data-layout="row"] .bin { flex:1 1 0; min-width:62px; max-width:180px; flex-direction:column; text-align:center; padding:8px 2px 10px; }
+      @container (max-width: 340px) {
+        ha-card[data-layout="row"] .pic { width:46px; height:52px; --em:17px; }
+        ha-card[data-layout="row"] .when { font-size:12.5px; }
+        ha-card[data-layout="row"] .nm { font-size:11px; }
+        ha-card[data-layout="row"] .dt { font-size:10px; }
+      }
       ha-card[data-layout="list"] .bins { flex-direction:column; }
       ha-card[data-layout="list"] .bin { flex-direction:row; text-align:left; }
       ha-card[data-layout="list"] .pic { width:46px; height:52px; }
