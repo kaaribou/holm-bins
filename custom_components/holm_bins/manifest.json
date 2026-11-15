@@ -1,0 +1,15 @@
+{
+  "domain": "holm_bins",
+  "name": "HOLM Poubelles",
+  "after_dependencies": ["calendar", "frontend", "lovelace", "mobile_app"],
+  "codeowners": ["@kaaribou"],
+  "config_flow": true,
+  "dependencies": ["http"],
+  "documentation": "https://github.com/kaaribou/holm-bins",
+  "integration_type": "service",
+  "iot_class": "calculated",
+  "issue_tracker": "https://github.com/kaaribou/holm-bins/issues",
+  "requirements": [],
+  "single_config_entry": true,
+  "version": "1.0.0"
+}

@@ -1,0 +1,41 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "HOLM Bidoni",
+        "description": "Date di raccolta, promemoria e animazioni si impostano poi dalla scheda HOLM Bidoni (ingranaggio). Qui puoi importare i calendari di raccolta esistenti: verrà creato un bidone per ciascuno.",
+        "data": {
+          "import_calendars": "Calendari da importare",
+          "detect_rules": "Converti in ricorrenza quando possibile"
+        },
+        "data_description": {
+          "import_calendars": "Un bidone per calendario. Lascia vuoto per partire da zero.",
+          "detect_rules": "Se le raccolte di un calendario sono regolari (stesso giorno, ogni N settimane), il bidone userà una ricorrenza modificabile dalla scheda invece del calendario."
+        }
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "HOLM Bidoni è già installato."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "next": {
+        "name": "Prossima raccolta"
+      },
+      "days": {
+        "name": "Giorni alla raccolta"
+      }
+    },
+    "binary_sensor": {
+      "due": {
+        "name": "Da portare fuori"
+      }
+    },
+    "switch": {
+      "out": {
+        "name": "Portato fuori"
+      }
+    }
+  }
+}

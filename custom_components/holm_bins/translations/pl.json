@@ -1,0 +1,41 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "HOLM Kosze",
+        "description": "Terminy odbioru, przypomnienia i animacje ustawia się potem na karcie HOLM Kosze (ikona koła zębatego). Tutaj możesz zaimportować istniejące kalendarze odbioru: dla każdego zostanie utworzony kosz.",
+        "data": {
+          "import_calendars": "Kalendarze do zaimportowania",
+          "detect_rules": "Zamień na cykl, gdy to możliwe"
+        },
+        "data_description": {
+          "import_calendars": "Jeden kosz na kalendarz. Pozostaw puste, aby zacząć od zera.",
+          "detect_rules": "Jeśli odbiory w kalendarzu są regularne (ten sam dzień, co N tygodni), kosz użyje cyklu edytowalnego na karcie zamiast kalendarza."
+        }
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "HOLM Kosze jest już zainstalowany."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "next": {
+        "name": "Następny odbiór"
+      },
+      "days": {
+        "name": "Dni do odbioru"
+      }
+    },
+    "binary_sensor": {
+      "due": {
+        "name": "Do wystawienia"
+      }
+    },
+    "switch": {
+      "out": {
+        "name": "Wystawiony"
+      }
+    }
+  }
+}

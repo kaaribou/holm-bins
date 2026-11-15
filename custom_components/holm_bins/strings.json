@@ -1,0 +1,41 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "HOLM Poubelles",
+        "description": "Les dates de collecte, les rappels et les animations se règlent ensuite depuis la carte HOLM Poubelles (roue crantée). Vous pouvez reprendre ici vos calendriers de collecte existants : une poubelle sera créée pour chacun.",
+        "data": {
+          "import_calendars": "Calendriers à reprendre",
+          "detect_rules": "Convertir en récurrence quand c'est possible"
+        },
+        "data_description": {
+          "import_calendars": "Une poubelle par calendrier. Laissez vide pour partir de zéro.",
+          "detect_rules": "Si les collectes d'un calendrier sont régulières (même jour, toutes les N semaines), la poubelle utilisera une récurrence modifiable depuis la carte au lieu du calendrier."
+        }
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "HOLM Poubelles est déjà installé."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "next": {
+        "name": "Prochaine collecte"
+      },
+      "days": {
+        "name": "Jours avant la collecte"
+      }
+    },
+    "binary_sensor": {
+      "due": {
+        "name": "À sortir"
+      }
+    },
+    "switch": {
+      "out": {
+        "name": "Sortie"
+      }
+    }
+  }
+}

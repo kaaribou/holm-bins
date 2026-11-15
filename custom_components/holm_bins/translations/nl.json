@@ -1,0 +1,41 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "HOLM Containers",
+        "description": "Ophaaldata, herinneringen en animaties stelt u daarna in via de HOLM Containers-kaart (tandwiel). Hier kunt u bestaande afvalkalenders overnemen: voor elke kalender wordt een container aangemaakt.",
+        "data": {
+          "import_calendars": "Over te nemen kalenders",
+          "detect_rules": "Indien mogelijk omzetten naar een herhaling"
+        },
+        "data_description": {
+          "import_calendars": "Eén container per kalender. Leeg laten om opnieuw te beginnen.",
+          "detect_rules": "Zijn de ophalingen van een kalender regelmatig (zelfde dag, elke N weken), dan gebruikt de container een herhaling die u in de kaart kunt aanpassen in plaats van de kalender."
+        }
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "HOLM Containers is al geïnstalleerd."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "next": {
+        "name": "Volgende ophaling"
+      },
+      "days": {
+        "name": "Dagen tot ophaling"
+      }
+    },
+    "binary_sensor": {
+      "due": {
+        "name": "Buitenzetten"
+      }
+    },
+    "switch": {
+      "out": {
+        "name": "Buitengezet"
+      }
+    }
+  }
+}

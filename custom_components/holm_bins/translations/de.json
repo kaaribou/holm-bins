@@ -1,0 +1,41 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "HOLM Mülltonnen",
+        "description": "Abholtermine, Erinnerungen und Animationen werden anschließend in der HOLM-Mülltonnen-Karte (Zahnrad) eingestellt. Hier können Sie vorhandene Abfallkalender übernehmen: für jeden wird eine Tonne angelegt.",
+        "data": {
+          "import_calendars": "Zu übernehmende Kalender",
+          "detect_rules": "Wenn möglich in eine Wiederholung umwandeln"
+        },
+        "data_description": {
+          "import_calendars": "Eine Tonne pro Kalender. Leer lassen, um neu zu beginnen.",
+          "detect_rules": "Sind die Abholungen eines Kalenders regelmäßig (gleicher Tag, alle N Wochen), nutzt die Tonne eine in der Karte bearbeitbare Wiederholung statt des Kalenders."
+        }
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "HOLM Mülltonnen ist bereits installiert."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "next": {
+        "name": "Nächste Abholung"
+      },
+      "days": {
+        "name": "Tage bis zur Abholung"
+      }
+    },
+    "binary_sensor": {
+      "due": {
+        "name": "Rausstellen"
+      }
+    },
+    "switch": {
+      "out": {
+        "name": "Rausgestellt"
+      }
+    }
+  }
+}

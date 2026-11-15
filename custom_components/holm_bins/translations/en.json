@@ -1,0 +1,41 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "HOLM Bins",
+        "description": "Collection dates, reminders and animations are then set from the HOLM Bins card (gear icon). You can import your existing collection calendars here: one bin will be created for each.",
+        "data": {
+          "import_calendars": "Calendars to import",
+          "detect_rules": "Convert to a recurrence when possible"
+        },
+        "data_description": {
+          "import_calendars": "One bin per calendar. Leave empty to start from scratch.",
+          "detect_rules": "If a calendar's collections are regular (same day, every N weeks), the bin will use a recurrence you can edit from the card instead of the calendar."
+        }
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "HOLM Bins is already installed."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "next": {
+        "name": "Next collection"
+      },
+      "days": {
+        "name": "Days until collection"
+      }
+    },
+    "binary_sensor": {
+      "due": {
+        "name": "To put out"
+      }
+    },
+    "switch": {
+      "out": {
+        "name": "Put out"
+      }
+    }
+  }
+}

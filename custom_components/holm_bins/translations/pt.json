@@ -1,0 +1,41 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "HOLM Contentores",
+        "description": "As datas de recolha, os lembretes e as animações definem-se depois no cartão HOLM Contentores (roda dentada). Aqui pode importar os seus calendários de recolha: será criado um contentor para cada um.",
+        "data": {
+          "import_calendars": "Calendários a importar",
+          "detect_rules": "Converter em recorrência quando possível"
+        },
+        "data_description": {
+          "import_calendars": "Um contentor por calendário. Deixe vazio para começar do zero.",
+          "detect_rules": "Se as recolhas de um calendário forem regulares (mesmo dia, a cada N semanas), o contentor usará uma recorrência editável no cartão em vez do calendário."
+        }
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "HOLM Contentores já está instalado."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "next": {
+        "name": "Próxima recolha"
+      },
+      "days": {
+        "name": "Dias até à recolha"
+      }
+    },
+    "binary_sensor": {
+      "due": {
+        "name": "Para pôr na rua"
+      }
+    },
+    "switch": {
+      "out": {
+        "name": "Na rua"
+      }
+    }
+  }
+}

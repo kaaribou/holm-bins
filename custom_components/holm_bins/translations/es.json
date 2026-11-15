@@ -1,0 +1,41 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "HOLM Cubos",
+        "description": "Las fechas de recogida, los recordatorios y las animaciones se ajustan después desde la tarjeta HOLM Cubos (rueda dentada). Aquí puede importar sus calendarios de recogida: se creará un cubo por cada uno.",
+        "data": {
+          "import_calendars": "Calendarios a importar",
+          "detect_rules": "Convertir en recurrencia cuando sea posible"
+        },
+        "data_description": {
+          "import_calendars": "Un cubo por calendario. Déjelo vacío para empezar de cero.",
+          "detect_rules": "Si las recogidas de un calendario son regulares (mismo día, cada N semanas), el cubo usará una recurrencia editable desde la tarjeta en lugar del calendario."
+        }
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "HOLM Cubos ya está instalado."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "next": {
+        "name": "Próxima recogida"
+      },
+      "days": {
+        "name": "Días hasta la recogida"
+      }
+    },
+    "binary_sensor": {
+      "due": {
+        "name": "Para sacar"
+      }
+    },
+    "switch": {
+      "out": {
+        "name": "Sacado"
+      }
+    }
+  }
+}
