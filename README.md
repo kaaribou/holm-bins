@@ -27,7 +27,16 @@ HOLM Poubelles connaît les jours de collecte de chacune de vos poubelles : une 
 |---|---|
 | ![La carte HOLM Poubelles](docs/images/carte.png) | ![Les états des poubelles](docs/images/apercu-etats.png) |
 
-### 🆕 Nouveautés de la 1.1.0
+### 🆕 Nouveautés de la 1.2.0
+
+- 📅 **Un seul calendrier pour plusieurs poubelles** : un **mot-clé** par poubelle (« Ordures », « Tri »…) ne garde que les événements dont le nom le contient. Voir [Un calendrier commun à plusieurs poubelles](#un-calendrier-commun-à-plusieurs-poubelles).
+- ✍️ **Textes des notifications personnalisables**, avec les variables `{{ poubelles }}` et `{{ date }}`, ou un `input_text`. Voir [Les textes des notifications](#les-textes-des-notifications).
+- 🗂️ **Une carte par poubelle (ou par groupe)** : la roue crantée d'une carte limitée par « Poubelles affichées » ne montre que ses poubelles. Voir [Plusieurs cartes](#plusieurs-cartes).
+- 🎨 **Fond de la carte** au choix (couleur ou variable de thème) avec l'option `background`.
+- 🐞 Les boutons **Envoyer une notification de test** et **Vérifier maintenant** ne répondent plus « HOLM Poubelles n'est pas configuré », et les simples réglages s'appliquent sans recharger l'intégration.
+- 🐞 La disposition **Compacte** est centrée dans la carte.
+
+### Nouveautés de la 1.1.0
 
 - 🖼️ **Image personnalisée du bac** : téléversez votre image depuis la carte (ou indiquez une adresse) pour remplacer le dessin. Voir [Image du bac](#image-du-bac).
 - 📷 **Vérification par caméra** : la veille, à l'heure choisie, la caméra et une tâche IA vérifient que les poubelles sont sorties ; alerte avec la photo sinon. Voir [La vérification par caméra](#la-vérification-par-caméra).
@@ -106,11 +115,41 @@ Onglet **Rappels** des réglages de la carte :
 | **Relance si pas sortie à** | Deuxième rappel, seulement pour les poubelles pas encore sorties (case à cocher pour l'activer) | 21:30 |
 | **Rappel le matin de la collecte à** | Rappel le jour même, si la poubelle n'est toujours pas sortie (case à cocher) | désactivé |
 | **Le jour de collecte, passer à la suivante à** | Heure à partir de laquelle la collecte du jour est considérée comme faite | 12:00 |
-| **Envoyer une notification de test** | Enregistre les réglages et envoie un message de test aux appareils cochés | |
+| **Textes des notifications** | Vos propres textes pour la veille, le matin de la collecte et la relance (voir ci-dessous). Vide = texte par défaut | vides |
+| **Envoyer une notification de test** | Enregistre les réglages et envoie un message de test aux appareils cochés (avec votre texte de la veille s'il est rempli) | |
 
 Les poubelles d'une même collecte sont regroupées dans **une seule notification**. Sur l'application mobile, elle porte un bouton **« C'est fait »** : il marque ces poubelles comme sorties et la notification disparaît des autres appareils. Seules les poubelles dont **Notification de rappel** est cochée sont annoncées.
 
 ![Les réglages des rappels](docs/images/reglages-rappels.png)
+
+### Les textes des notifications
+
+En bas de l'onglet **Rappels**, trois zones de texte remplacent les messages par défaut :
+
+| Zone | Remplace | Texte par défaut |
+|---|---|---|
+| **La veille** | Le rappel de la veille | « Ce soir : {{ poubelles }} (collecte demain, {{ date }}). » |
+| **Le matin de la collecte** | Le rappel du matin | « Aujourd'hui : {{ poubelles }} (collecte ce jour). » |
+| **Relance** | La relance si la poubelle n'est pas sortie | « Pas encore sortie : {{ poubelles }}. » |
+
+Le texte grisé dans chaque zone rappelle le texte par défaut. Les variables :
+
+| Variable | Contenu | Exemple |
+|---|---|---|
+| `{{ poubelles }}` | Les poubelles concernées | « Poubelle Jaune et Verre » |
+| `{{ date }}` | Le jour de la collecte | « mercredi 18/11 » |
+| `{{ jour }}` | La date de la collecte au format AAAA-MM-JJ | « 2026-11-18 » |
+| `{{ liste }}` | Les noms des poubelles, sous forme de liste | `['Poubelle Jaune', 'Verre']` |
+
+Ce sont des **modèles Home Assistant** : vous pouvez lire n'importe quelle entité, par exemple un `input_text` que vous modifiez ailleurs :
+
+```jinja
+{{ states('input_text.message_poubelles') }} : {{ poubelles }}
+```
+
+Un modèle qui contient une erreur n'empêche pas le rappel : le texte par défaut est envoyé à sa place (et l'erreur est notée dans le journal). Le titre et le bouton « C'est fait » ne changent pas.
+
+![Les textes des notifications](docs/images/textes-notifications.png)
 
 ## La vérification par caméra
 
@@ -203,6 +242,7 @@ Onglet **Poubelles** : une ligne par poubelle (couleur, nom, résumé des dates)
 | **Image du bac** | **Dessin HOLM** (le bac dessiné à la couleur choisie) ou **Image personnalisée** (voir ci-dessous) |
 | **Couleur** | 10 couleurs prêtes à l'emploi, ou n'importe quelle couleur avec le sélecteur |
 | **Dates de collecte** | **Récurrence**, **Calendrier** (un calendrier Home Assistant : local, ICS, Google…) ou **Dates à la main** |
+| **Calendrier** / **Mot-clé** | Source Calendrier : le calendrier à lire et, s'il sert à plusieurs poubelles, le mot que doit contenir le nom de l'événement (voir ci-dessous) |
 | **Toutes les semaines** / **Une fois par mois** | Type de récurrence |
 | **Jour(s)** | Un ou plusieurs jours de la semaine |
 | **Fréquence** | Chaque semaine, ou toutes les 2, 3 ou 4 semaines |
@@ -220,6 +260,26 @@ Onglet **Poubelles** : une ligne par poubelle (couleur, nom, résumé des dates)
 
 ![Les réglages d'une poubelle](docs/images/reglages-poubelles.png)
 
+### Un calendrier commun à plusieurs poubelles
+
+Toutes vos collectes sont dans **un même calendrier** (« Ordures ménagères » le mardi, « Tri sélectif » le jeudi…) ? Créez une poubelle par type de collecte, choisissez la source **Calendrier** et le même calendrier pour chacune, puis remplissez **Mot-clé dans le nom de l'événement** :
+
+| Poubelle | Calendrier | Mot-clé | Événements retenus |
+|---|---|---|---|
+| Ordures | Collectes | `ordures` | « Ordures ménagères » |
+| Tri | Collectes | `tri, recyclage` | « Tri sélectif », « Recyclage » |
+
+- Les **majuscules et les accents** ne comptent pas.
+- Le mot est cherché en **début de mot** : `tri` trouve « Tri sélectif » mais pas « Patrimoine ».
+- **Plusieurs mots** séparés par des virgules : l'un ou l'autre suffit.
+- **Mot-clé vide** : tous les événements du calendrier comptent (comme avant).
+- Sous le champ, **Événements du calendrier** liste les noms trouvés dans le calendrier : un appui en fait le mot-clé.
+- L'aperçu **Prochaines collectes** se met à jour pendant la saisie.
+
+Dans la liste des poubelles, le résumé devient « Calendrier Collectes · « ordures » ».
+
+![Le mot-clé d'un calendrier commun](docs/images/mot-cle.png)
+
 ### Image du bac
 
 Dans les réglages d'une poubelle, choisissez **Image personnalisée** :
@@ -236,8 +296,9 @@ Une image **PNG ou SVG au fond transparent**, à peu près carrée, donne le mei
 |---|---|---|
 | `language` | Langue de la carte : `fr`, `en`, `de`, `es`, `it`, `nl`, `pt`, `pl` | celle du profil |
 | `title` | Titre au-dessus des poubelles | aucun |
-| `layout` | `row` (côte à côte), `list` (une par ligne) ou `compact` (pastilles : bac et délai seulement, idéal pour une barre de navigation) | `row` |
-| `bins` | Liste des poubelles à afficher (identifiants), dans cet ordre | toutes |
+| `background` | Fond de la carte : une couleur (`#1e3a5f`), un dégradé ou une variable de thème (`var(--primary-color)`, `var(--card-background-color)`…) | celui du thème |
+| `layout` | `row` (côte à côte), `list` (une par ligne) ou `compact` (pastilles centrées : bac et délai seulement, idéal pour une barre de navigation) | `row` |
+| `bins` | Liste des poubelles à afficher (identifiants), dans cet ordre. Limite aussi la roue crantée à ces poubelles (voir [Plusieurs cartes](#plusieurs-cartes)) | toutes |
 | `sort` | `date` : la prochaine collecte d'abord | ordre des réglages |
 | `hide_after` | Masquer les poubelles dont la collecte est dans plus de N jours (0 = jamais) | `0` |
 | `tap_action` | `out` (marquer sortie la veille et le jour J, sinon détails), `more-info` ou `none` | `out` |
@@ -247,6 +308,25 @@ Une image **PNG ou SVG au fond transparent**, à peu près carrée, donne le mei
 | `show_settings` | Bouton ⚙ Réglages (administrateurs seulement) | `true` |
 
 L'éditeur visuel est disponible.
+
+### Plusieurs cartes
+
+Une carte pour la poubelle d'ordures, une autre pour le tri ? Dans l'éditeur de chaque carte, cochez ses poubelles dans **Poubelles affichées** :
+
+```yaml
+type: custom:holm-bins-card
+title: Tri
+bins:
+  - tri
+background: var(--primary-color)
+```
+
+- La carte n'affiche que ces poubelles.
+- Sa **roue crantée** n'affiche, elle aussi, que ces poubelles. Un bandeau le rappelle en haut de l'onglet Poubelles, avec le lien **Voir toutes les poubelles** pour les retrouver toutes (et **Seulement celles de cette carte** pour revenir).
+- Les onglets **Rappels** et **Caméra** restent communs à toutes les cartes : ce sont les réglages de l'intégration.
+- Une poubelle **ajoutée** depuis une carte limitée n'y apparaît qu'une fois ajoutée à **Poubelles affichées** dans l'éditeur de la carte (un message le rappelle sous la nouvelle poubelle).
+
+![La roue crantée d'une carte limitée à certaines poubelles](docs/images/carte-filtree.png)
 
 ## Bon à savoir
 
@@ -261,6 +341,10 @@ L'éditeur visuel est disponible.
 **La poubelle reste « Aujourd'hui » toute la journée.** Réglez l'heure *Le jour de collecte, passer à la suivante à* dans l'onglet Rappels.
 
 **Je ne reçois pas de rappel.** Cochez au moins un appareil dans *Envoyer à*, vérifiez *Notification de rappel* sur la poubelle, et essayez *Envoyer une notification de test*.
+
+**« HOLM Poubelles n'est pas chargé »** s'affiche dans les réglages. L'intégration n'est pas installée ou n'a pas démarré : vérifiez-la dans *Paramètres → Appareils et services → HOLM Poubelles* (et le journal). Avant la 1.2.0, ce message pouvait aussi apparaître à tort sur les boutons de test : mettez à jour.
+
+**Toutes mes collectes sont dans un seul calendrier.** Utilisez un [mot-clé par poubelle](#un-calendrier-commun-à-plusieurs-poubelles).
 
 ---
 

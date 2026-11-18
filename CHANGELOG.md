@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.2.0
+- **Un seul calendrier pour plusieurs poubelles** ([#4](https://github.com/kaaribou/holm-bins/issues/4)) : nouveau champ **Mot-clé dans le nom de l'événement** pour la source Calendrier. Seuls les événements dont le nom contient ce mot comptent (majuscules et accents ignorés, début de mot, plusieurs mots séparés par des virgules). Les noms d'événements du calendrier sont proposés sous le champ ; un appui en fait le mot-clé.
+- **Textes des notifications personnalisables** ([#3](https://github.com/kaaribou/holm-bins/issues/3)) : la veille, le matin de la collecte et la relance, dans l'onglet Rappels. Modèles Home Assistant, avec les variables `{{ poubelles }}`, `{{ date }}`, `{{ jour }}` et `{{ liste }}` (par exemple `{{ states('input_text.message_poubelles') }}`). Un modèle en erreur laisse partir le texte par défaut.
+- **Fond de la carte** ([#3](https://github.com/kaaribou/holm-bins/issues/3)) : nouvelle option `background` (couleur, dégradé ou variable de thème), aussi dans l'éditeur visuel.
+- **Une carte par poubelle** ([#2](https://github.com/kaaribou/holm-bins/issues/2)) : la roue crantée d'une carte limitée par « Poubelles affichées » (`bins`) ne montre que ses poubelles, avec un lien « Voir toutes les poubelles ».
+- **Correction** ([#5](https://github.com/kaaribou/holm-bins/issues/5)) : « Envoyer une notification de test » et « Vérifier maintenant » répondaient « HOLM Poubelles n'est pas configuré » : ils interrogeaient l'intégration pendant le rechargement déclenché par l'enregistrement. L'enregistrement ne recharge plus l'intégration que si des poubelles sont ajoutées, supprimées ou renommées (les autres réglages s'appliquent sur place), le rechargement est terminé avant la réponse, et les boutons attendent l'intégration si besoin. Le message d'erreur est traduit.
+- **Correction** ([#1](https://github.com/kaaribou/holm-bins/issues/1)) : la disposition Compacte est centrée dans la carte.
+
 ## 1.1.0
 - **Image personnalisée du bac** : chaque poubelle peut afficher votre propre image (téléversée depuis la carte, ou une adresse `/local/…` / `https://…`) à la place du dessin HOLM. Les animations s'appliquent aussi à l'image (le « couvercle qui s'ouvre » devient un balancement).
 - **Vérification par caméra** : la veille de la collecte, à l'heure choisie, une photo de la caméra est analysée par une tâche IA de Home Assistant. Les poubelles vues sont marquées sorties (plus de relance) ; pour les autres, une alerte part avec la photo et le bouton « C'est fait ».

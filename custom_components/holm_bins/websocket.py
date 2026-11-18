@@ -1,17 +1,36 @@
 """API de la carte : lecture des poubelles et réglages, aperçu des dates, enregistrement (administrateurs), sortie."""
 from __future__ import annotations
 
+import asyncio
+
 import voluptuous as vol
 
 from homeassistant.components import websocket_api
+from homeassistant.config_entries import ConfigEntryState
 from homeassistant.core import HomeAssistant, callback
 
 from .const import DOMAIN, SOURCES, STYLES
 
 
 def _entry(hass: HomeAssistant):
-    entries = [e for e in hass.config_entries.async_entries(DOMAIN) if getattr(e, "runtime_data", None)]
+    entries = [e for e in hass.config_entries.async_entries(DOMAIN) if e.state is ConfigEntryState.LOADED and getattr(e, "runtime_data", None)]
     return entries[0] if entries else None
+
+
+async def _wait_entry(hass: HomeAssistant, timeout: float = 15.0):
+    """L'entrée chargée ; si elle est en train de se recharger (après un enregistrement), on attend qu'elle revienne."""
+    for _ in range(int(timeout * 4)):
+        if entry := _entry(hass):
+            return entry
+        if not hass.config_entries.async_entries(DOMAIN):
+            return None
+        await asyncio.sleep(0.25)
+    return None
+
+
+def _structure(bins: list[dict]) -> list[tuple]:
+    """Ce qui impose de recharger l'intégration : poubelles ajoutées, supprimées ou renommées (entités et appareils)."""
+    return [(b.get("id"), b.get("name")) for b in bins]
 
 
 @callback
@@ -21,7 +40,8 @@ def async_register(hass: HomeAssistant) -> None:
 
 
 def _not_loaded(connection, msg):
-    connection.send_error(msg["id"], "not_loaded", "HOLM Poubelles n'est pas configuré")
+    # le code « not_loaded » est traduit par la carte ; le message reste en anglais pour les autres clients
+    connection.send_error(msg["id"], "not_loaded", "HOLM Bins is not set up")
 
 
 @websocket_api.websocket_command({vol.Required("type"): "holm_bins/get"})
@@ -46,23 +66,35 @@ _BIN = vol.Schema({vol.Optional("id"): str, vol.Required("name"): str}, extra=vo
 @websocket_api.websocket_command({vol.Required("type"): "holm_bins/save", vol.Required("bins"): [_BIN], vol.Optional("settings"): dict})
 @websocket_api.async_response
 async def ws_save(hass, connection, msg):
-    entry = _entry(hass)
+    entry = await _wait_entry(hass)
     if not entry:
         return _not_loaded(connection, msg)
     m = entry.runtime_data
+    before = _structure(m.bins)
     await m.async_replace(msg["bins"], msg.get("settings"))
-    connection.send_result(msg["id"], {"ok": True, "bins": m.bins})
-    # rechargement : crée / retire les entités des poubelles ajoutées ou supprimées, renomme les appareils, relit les calendriers
-    hass.async_create_task(hass.config_entries.async_reload(entry.entry_id))
+    if _structure(m.bins) != before:
+        # poubelles ajoutées, supprimées ou renommées : rechargement complet (entités, appareils), terminé avant de répondre
+        await hass.config_entries.async_reload(entry.entry_id)
+        entry = _entry(hass)
+        m = entry.runtime_data if entry else m
+        reloaded = True
+    else:
+        # simples réglages (dates, couleurs, notifications…) : appliqués sur place, sans recharger
+        await m.async_apply()
+        reloaded = False
+    connection.send_result(msg["id"], {"ok": True, "bins": m.bins, "reloaded": reloaded})
 
 
 @websocket_api.websocket_command({vol.Required("type"): "holm_bins/preview", vol.Required("bin"): dict, vol.Optional("count", default=6): int})
 @websocket_api.async_response
 async def ws_preview(hass, connection, msg):
-    entry = _entry(hass)
+    entry = await _wait_entry(hass)
     if not entry:
         return _not_loaded(connection, msg)
-    connection.send_result(msg["id"], {"dates": await entry.runtime_data.async_preview(msg["bin"], min(24, msg["count"]))})
+    m = entry.runtime_data
+    dates = await m.async_preview(msg["bin"], min(24, msg["count"]))
+    cal = msg["bin"].get("calendar")
+    connection.send_result(msg["id"], {"dates": dates, "names": m.calendar_names(cal) if cal else []})
 
 
 @websocket_api.websocket_command({vol.Required("type"): "holm_bins/out", vol.Required("bin"): str, vol.Required("out"): bool})
@@ -79,7 +111,7 @@ def ws_out(hass, connection, msg):
 @websocket_api.websocket_command({vol.Required("type"): "holm_bins/test"})
 @websocket_api.async_response
 async def ws_test(hass, connection, msg):
-    entry = _entry(hass)
+    entry = await _wait_entry(hass)
     if not entry:
         return _not_loaded(connection, msg)
     connection.send_result(msg["id"], {"sent": await entry.runtime_data.async_test_notification()})
@@ -90,7 +122,7 @@ async def ws_test(hass, connection, msg):
 @websocket_api.async_response
 async def ws_check(hass, connection, msg):
     """Vérification par caméra à la demande (test : ne marque rien comme sorti et n'envoie pas d'alerte)."""
-    entry = _entry(hass)
+    entry = await _wait_entry(hass)
     if not entry:
         return _not_loaded(connection, msg)
     connection.send_result(msg["id"], await entry.runtime_data.async_camera_check(force=True))

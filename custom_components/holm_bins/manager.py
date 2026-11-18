@@ -12,6 +12,7 @@ from typing import Callable
 from homeassistant.core import Event, HomeAssistant, callback
 from homeassistant.helpers.event import async_track_state_change_event, async_track_time_change
 from homeassistant.helpers.storage import Store
+from homeassistant.helpers.template import Template
 from homeassistant.util import dt as dt_util
 
 from .const import (ACTION_DONE, DEFAULT_BIN, DEFAULT_SETTINGS, EVENT_CHECK, EVENT_DUE, EVENT_NOTIFY_ACTION, NOTIF, SNAPSHOT, SNAPSHOT_URL, SRC_CALENDAR, SRC_RULE,
@@ -31,6 +32,23 @@ def _hm(v: str | None) -> tuple[int, int] | None:
     return (int(m.group(1)) % 24, int(m.group(2)) % 60) if m else None
 
 
+def _norm(text: str) -> str:
+    return unicodedata.normalize("NFKD", str(text or "")).encode("ascii", "ignore").decode().lower()
+
+
+def keywords(value: str) -> list[str]:
+    """« Tri, recyclage » -> ["tri", "recyclage"] (sans accents ni majuscules)."""
+    return [k for k in (_norm(x).strip() for x in str(value or "").split(",")) if k]
+
+
+def match_keyword(summary: str, words: list[str]) -> bool:
+    """Vrai si le nom de l'événement contient l'un des mots (mot entier ou début de mot : « tri » trouve « Tri sélectif », pas « Patrimoine »)."""
+    if not words:
+        return True
+    text = _norm(summary)
+    return any(re.search(r"(?<![a-z0-9])" + re.escape(w), text) for w in words)
+
+
 def clean_bin(raw: dict, existing_ids: set[str]) -> dict:
     """Normalise une poubelle reçue de la carte ou de l'import (valeurs par défaut, types)."""
     b = copy.deepcopy(DEFAULT_BIN)
@@ -48,6 +66,7 @@ def clean_bin(raw: dict, existing_ids: set[str]) -> dict:
     b["skip"] = sorted({d.isoformat() for d in (parse_date(x) for x in b.get("skip") or []) if d})
     b["name"] = str(b.get("name") or "Poubelle").strip()[:40]
     b["image"] = str(b.get("image") or "").strip()[:500]
+    b["keyword"] = str(b.get("keyword") or "").strip()[:80]
     if not re.match(r"^#[0-9a-fA-F]{6}$", str(b.get("color") or "")):
         b["color"] = DEFAULT_BIN["color"]
     bid = b.get("id")
@@ -70,7 +89,7 @@ class BinsManager:
         self.out: dict[str, str] = {}            # id -> date de collecte pour laquelle la poubelle est sortie
         self.dates: dict[str, list[date]] = {}   # id -> prochaines dates
         self.info: dict[str, dict] = {}          # id -> état calculé
-        self._cal: dict[str, list[date]] = {}    # calendrier -> dates
+        self._cal: dict[str, list[tuple[date, str]]] = {}    # calendrier -> (date, nom de l'événement)
         self._sent: set[str] = set()
         self._listeners: list[Callable] = []
         self._unsubs: list[Callable] = []
@@ -110,8 +129,8 @@ class BinsManager:
             style = next((styles[w] for w in words if w in styles), "bac")
             raw = {"name": name, "color": color, "style": style, "source": SRC_CALENDAR, "calendar": cal, "order": len(self.bins)}
             if detect:
-                dates = await self._fetch_calendar(cal, today - timedelta(days=60), today + timedelta(days=120))
-                rule = detect_rule(dates)
+                events = await self._fetch_calendar(cal, today - timedelta(days=60), today + timedelta(days=120))
+                rule = detect_rule(sorted({d for d, _s in events}))
                 if rule:
                     raw.update({"source": SRC_RULE, "rule": rule})
             b = clean_bin(raw, ids)
@@ -131,9 +150,18 @@ class BinsManager:
             s["targets"] = [str(t).removeprefix("notify.") for t in s.get("targets") or []]
             s["camera_targets"] = [str(t).removeprefix("notify.") for t in s.get("camera_targets") or []]
             s["camera_alert"] = bool(s.get("camera_alert", True))
+            for k in ("text_eve", "text_today", "text_reminder"):
+                s[k] = str(s.get(k) or "").strip()[:500]
             self.settings = s
         self.out = {k: v for k, v in self.out.items() if k in ids}
         await self.async_save()
+
+    async def async_apply(self) -> None:
+        """Applique sur place des réglages enregistrés (sans recharger l'intégration) : écoute des calendriers, dates, états."""
+        self.stop()
+        self.start()
+        await self.async_refresh()
+        self._notify_listeners()   # couleurs, animations… sont lues dans les réglages : on réécrit les entités
 
     # ---------- démarrage ----------
     def start(self) -> None:
@@ -157,7 +185,7 @@ class BinsManager:
             cb()
 
     # ---------- calendriers ----------
-    async def _fetch_calendar(self, cal: str, start: date, end: date) -> list[date]:
+    async def _fetch_calendar(self, cal: str, start: date, end: date) -> list[tuple[date, str]]:
         try:
             resp = await self.hass.services.async_call(
                 "calendar", "get_events",
@@ -167,7 +195,15 @@ class BinsManager:
             _LOGGER.warning("Calendrier %s illisible : %s", cal, err)
             return []
         events = (resp or {}).get(cal, {}).get("events", [])
-        return sorted({d for d in (parse_date(e.get("start")) for e in events) if d})
+        return sorted({(d, str(e.get("summary") or "")) for e in events if (d := parse_date(e.get("start")))})
+
+    def _cal_dates(self, b: dict) -> list[date] | None:
+        """Dates du calendrier d'une poubelle, filtrées par son mot-clé (calendrier commun à plusieurs poubelles)."""
+        events = self._cal.get(b.get("calendar"))
+        if events is None:
+            return None
+        words = keywords(b.get("keyword"))
+        return sorted({d for d, summary in events if match_keyword(summary, words)})
 
     async def async_refresh(self) -> None:
         """Relit les calendriers puis recalcule toutes les dates."""
@@ -185,12 +221,20 @@ class BinsManager:
     def _compute_dates(self, today: date) -> None:
         self._day = today
         for b in self.bins:
-            self.dates[b["id"]] = compute(b, today, self._cal.get(b.get("calendar")))
+            self.dates[b["id"]] = compute(b, today, self._cal_dates(b))
 
     def preview(self, raw: dict, count: int = 6) -> list[str]:
         today = dt_util.now().date()
         b = clean_bin(raw, set())
-        return [d.isoformat() for d in compute(b, today, self._cal.get(b.get("calendar")))[:count]]
+        return [d.isoformat() for d in compute(b, today, self._cal_dates(b))[:count]]
+
+    def calendar_names(self, cal: str) -> list[str]:
+        """Noms d'événements distincts d'un calendrier (pour proposer des mots-clés dans la carte)."""
+        seen: dict[str, None] = {}
+        for _d, summary in self._cal.get(cal) or []:
+            if summary:
+                seen.setdefault(summary.strip(), None)
+        return list(seen)[:12]
 
     async def async_preview(self, raw: dict, count: int = 6) -> list[str]:
         cal = raw.get("calendar")
@@ -307,11 +351,26 @@ class BinsManager:
         if kind == "eve":
             self.hass.bus.async_fire(EVENT_DUE, {"bins": [b["id"] for b in bins], "names": [b["name"] for b in bins], "date": nxt.isoformat()})
         title = t["reminder_title"] if kind == "reminder" else t["title"]
-        msg = t["reminder" if kind == "reminder" else ("eve" if kind == "eve" else "today")].format(bins=names, date=when)
+        key = "reminder" if kind == "reminder" else ("eve" if kind == "eve" else "today")
+        msg = self._custom_text(key, bins, names, when, nxt) or t[key].format(bins=names, date=when)
         data = {"title": title, "message": msg,
                 "data": {"tag": "holm_bins", "ttl": 0, "priority": "high", "notification_icon": "mdi:delete-empty",
                          "actions": [{"action": f"{ACTION_DONE}|{','.join(b['id'] for b in bins)}", "title": t["done"]}]}}
         self._notify(self.settings.get("targets") or [], data)
+
+    def _custom_text(self, key: str, bins: list[dict], names: str, when: str, nxt: date) -> str:
+        """Texte personnalisé (réglages), rendu comme un modèle Home Assistant : {{ poubelles }}, {{ date }}, {{ jour }}, {{ liste }},
+        ou n'importe quelle entité, par exemple {{ states('input_text.message_poubelles') }}. Vide ou en erreur : texte par défaut."""
+        raw = (self.settings.get(f"text_{key}") or "").strip()
+        if not raw:
+            return ""
+        variables = {"poubelles": names, "bins": names, "date": when, "jour": nxt.isoformat(), "liste": [b["name"] for b in bins]}
+        try:
+            out = Template(raw, self.hass).async_render(variables, parse_result=False)
+        except Exception as err:  # noqa: BLE001 — modèle mal écrit : on garde le texte par défaut
+            _LOGGER.warning("Texte de notification « %s » invalide : %s", key, err)
+            return ""
+        return str(out).strip()
 
     def _notify(self, targets: list[str], data: dict) -> None:
         for target in targets:
@@ -328,7 +387,12 @@ class BinsManager:
 
     async def async_test_notification(self) -> int:
         lang = self._lang()
-        data = {"title": NOTIF[lang]["title"], "message": "HOLM Poubelles ✓", "data": {"tag": "holm_bins_test"}}
+        msg = "HOLM Poubelles ✓"
+        if self.settings.get("text_eve") and self.bins:   # aperçu du texte personnalisé, avec la première poubelle
+            b = self.bins[0]
+            nxt = (self.info.get(b["id"]) or {}).get("next") or dt_util.now().date() + timedelta(days=1)
+            msg = self._custom_text("eve", [b], b["name"], f"{WEEKDAYS[lang][nxt.weekday()]} {nxt.strftime('%d/%m')}", nxt) or msg
+        data = {"title": NOTIF[lang]["title"], "message": msg, "data": {"tag": "holm_bins_test"}}
         n = 0
         for target in self.settings.get("targets") or []:
             if self.hass.services.has_service("notify", target):

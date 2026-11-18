@@ -178,3 +178,84 @@ async def test_camera_check(hass, freezer):
     n = len(notif)
     r = await m.async_camera_check(force=True)
     assert r["missing"] == ["poubelle_verte"] and len(notif) == n
+
+
+async def test_shared_calendar_keyword(hass, freezer):
+    """#4 : un seul calendrier pour plusieurs poubelles, chacune filtrée par un mot-clé du nom de l'événement."""
+    from datetime import date, timedelta
+    await hass.config.async_set_time_zone("Europe/Paris")
+    freezer.move_to(datetime(2026, 11, 15, 12, 0, tzinfo=TZ))
+    cal = MockConfigEntry(domain="local_calendar", data={"calendar_name": "Collectes"}, options={})
+    cal.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(cal.entry_id)
+    await hass.async_block_till_done()
+    cal_id = next(e for e in hass.states.async_entity_ids("calendar"))
+    for d, s in ((date(2026, 11, 17), "Ordures ménagères"), (date(2026, 11, 19), "Tri sélectif"), (date(2026, 11, 24), "Ordures ménagères"),
+                 (date(2026, 11, 26), "TRI sélectif"), (date(2026, 11, 20), "Visite Patrimoine")):
+        await hass.services.async_call("calendar", "create_event", {"entity_id": cal_id, "summary": s, "start_date": d.isoformat(), "end_date": (d + timedelta(days=1)).isoformat()}, blocking=True)
+    entry = MockConfigEntry(domain=DOMAIN, data={"import_calendars": []})
+    entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+    m = entry.runtime_data
+    await m.async_replace([
+        {"name": "Ordures", "source": "calendar", "calendar": cal_id, "keyword": "ordures"},
+        {"name": "Tri", "source": "calendar", "calendar": cal_id, "keyword": "tri, recyclage"},
+        {"name": "Tout", "source": "calendar", "calendar": cal_id},
+    ], None)
+    await hass.config_entries.async_reload(entry.entry_id)
+    await hass.async_block_till_done()
+    m = hass.config_entries.async_get_entry(entry.entry_id).runtime_data
+    assert [d.isoformat() for d in m.dates["ordures"][:2]] == ["2026-11-17", "2026-11-24"]
+    assert [d.isoformat() for d in m.dates["tri"][:2]] == ["2026-11-19", "2026-11-26"]   # « Patrimoine » ne compte pas pour « tri »
+    assert len(m.dates["tout"]) == 5
+    assert "Tri sélectif" in m.calendar_names(cal_id)
+    assert await m.async_preview({"name": "x", "source": "calendar", "calendar": cal_id, "keyword": "Ordures"}) == ["2026-11-17", "2026-11-24"]
+
+
+async def test_custom_notification_text(hass, freezer):
+    """#3 : texte de notification personnalisé, modèle Home Assistant (variables et input_text)."""
+    notif = async_mock_service(hass, "notify", "mobile_app_test")
+    hass.states.async_set("input_text.msg_poubelles", "Sortez {} !")
+    entry = await _setup(hass, freezer, datetime(2026, 11, 17, 18, 58, tzinfo=TZ))
+    m = entry.runtime_data
+    await m.async_replace([{"name": "Jaune", "rule": {"type": "weekly", "weekdays": [2]}}],
+                          {"targets": ["mobile_app_test"], "time": "19:00", "reminder": "21:30",
+                           "text_eve": "{{ states('input_text.msg_poubelles') | replace('{}', poubelles) }} ({{ date }})",
+                           "text_reminder": "{{ oops("})
+    await m.async_apply()
+    freezer.move_to(datetime(2026, 11, 17, 19, 0, 5, tzinfo=TZ))
+    async_fire_time_changed(hass)
+    await hass.async_block_till_done()
+    assert notif[-1].data["message"] == "Sortez Jaune ! (mercredi 18/11)", notif[-1].data
+    freezer.move_to(datetime(2026, 11, 17, 21, 30, 5, tzinfo=TZ))
+    async_fire_time_changed(hass)
+    await hass.async_block_till_done()
+    assert notif[-1].data["message"] == "Pas encore sortie : Jaune.", notif[-1].data   # modèle invalide : texte par défaut
+    assert await m.async_test_notification() == 1
+    assert notif[-1].data["message"].startswith("Sortez Jaune !")
+
+
+async def test_ws_save_then_test(hass, freezer, hass_ws_client):
+    """#5 : « Envoyer une notification de test » enregistre puis teste, sans tomber sur l'intégration en cours de rechargement."""
+    notif = async_mock_service(hass, "notify", "mobile_app_test")
+    entry = await _setup(hass, freezer, datetime.now(TZ))   # heure réelle : le jeton d'accès de test doit rester valide
+    ws = await hass_ws_client(hass)
+    bins = [{"name": "Jaune", "rule": {"type": "weekly", "weekdays": [2]}}]
+    await ws.send_json({"id": 1, "type": "holm_bins/save", "bins": bins, "settings": {"targets": ["mobile_app_test"]}})
+    r = await ws.receive_json()
+    assert r["success"] and r["result"]["reloaded"] is True   # poubelle ajoutée : rechargement, terminé avant la réponse
+    await ws.send_json({"id": 2, "type": "holm_bins/test"})
+    r = await ws.receive_json()
+    assert r["success"] and r["result"]["sent"] == 1, r
+    saved = r and hass.config_entries.async_get_entry(entry.entry_id).runtime_data.bins
+    # simple réglage (couleur, heure) : pas de rechargement, appliqué sur place
+    await ws.send_json({"id": 3, "type": "holm_bins/save", "bins": [{**saved[0], "color": "#43a047"}], "settings": {"targets": ["mobile_app_test"], "time": "18:00"}})
+    r = await ws.receive_json()
+    assert r["success"] and r["result"]["reloaded"] is False
+    await ws.send_json({"id": 4, "type": "holm_bins/test"})
+    r = await ws.receive_json()
+    assert r["success"] and r["result"]["sent"] == 1
+    await hass.async_block_till_done()
+    assert hass.states.get("sensor.jaune_prochaine_collecte").attributes["couleur"] == "#43a047"
+    assert len(notif) == 2

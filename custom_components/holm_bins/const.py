@@ -1,6 +1,6 @@
 """Constantes de HOLM Poubelles."""
 DOMAIN = "holm_bins"
-VERSION = "1.1.0"
+VERSION = "1.2.0"
 NAME = "HOLM Poubelles"
 
 STORE_KEY = "holm_bins.data"
@@ -40,6 +40,11 @@ DEFAULT_SETTINGS = {
     "camera_time": "20:00", # heure de la vérification, la veille de la collecte
     "camera_alert": True,   # alerter (avec la photo) si des poubelles ne sont pas vues
     "camera_targets": [],   # destinataires de l'alerte caméra (vide = ceux des rappels)
+    # textes personnalisés des notifications (vide = texte par défaut) ; modèles Home Assistant acceptés,
+    # avec les variables {{ poubelles }}, {{ date }}, {{ jour }} et {{ liste }}
+    "text_eve": "",
+    "text_today": "",
+    "text_reminder": "",
 }
 
 DEFAULT_BIN = {
@@ -49,6 +54,7 @@ DEFAULT_BIN = {
     "icon": "",
     "source": SRC_RULE,
     "calendar": "",
+    "keyword": "",          # calendrier partagé : ne garder que les événements dont le nom contient ce mot (plusieurs : séparés par des virgules)
     "rule": {"type": RULE_WEEKLY, "weekdays": [0], "interval": 1, "anchor": "", "nth": 1, "weekday": 0},
     "months": [],           # mois actifs (vide = toute l'année), ex. déchets verts de mars à novembre
     "holidays": False,      # décaler au lendemain les jours fériés (France)

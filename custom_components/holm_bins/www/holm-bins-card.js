@@ -1,12 +1,30 @@
 /* HOLM Poubelles — carte des collectes — https://github.com/kaaribou/holm-bins — licence MIT
  * HOLM — Home Orchestration & Living Management */
 (() => {
-  const VERSION = "1.1.0";
+  const VERSION = "1.2.0";
   // ---- HOLM i18n : textes écrits en français, traduits à l'affichage (en, de, es, it, nl, pt, pl) ----
   const HOLM_LANGS = ["en", "de", "es", "it", "nl", "pt", "pl"];
   const LANG_NAMES = { fr: "Français", en: "English", de: "Deutsch", es: "Español", it: "Italiano", nl: "Nederlands", pt: "Português", pl: "Polski" };
   const LOCALES = { fr: "fr-FR", en: "en-GB", de: "de-DE", es: "es-ES", it: "it-IT", nl: "nl-NL", pt: "pt-PT", pl: "pl-PL" };
   const I18N = {
+    "Ce soir : {bins} (collecte demain, {date}).": ["Tonight: {bins} (collection tomorrow, {date}).", "Heute Abend: {bins} (Abholung morgen, {date}).", "Esta noche: {bins} (recogida mañana, {date}).", "Stasera: {bins} (raccolta domani, {date}).", "Vanavond: {bins} (ophaling morgen, {date}).", "Esta noite: {bins} (recolha amanhã, {date}).", "Dziś wieczorem: {bins} (odbiór jutro, {date})."],
+    "Aujourd'hui : {bins} (collecte ce jour).": ["Today: {bins} (collection today).", "Heute: {bins} (Abholung heute).", "Hoy: {bins} (recogida hoy).", "Oggi: {bins} (raccolta oggi).", "Vandaag: {bins} (ophaling vandaag).", "Hoje: {bins} (recolha hoje).", "Dziś: {bins} (odbiór dzisiaj)."],
+    "Pas encore sortie : {bins}.": ["Not out yet: {bins}.", "Noch nicht draußen: {bins}.", "Aún sin sacar: {bins}.", "Non ancora fuori: {bins}.", "Nog niet buiten: {bins}.", "Ainda por pôr: {bins}.", "Jeszcze nie wystawione: {bins}."],
+    "HOLM Poubelles n'est pas chargé : vérifiez l'intégration dans Paramètres → Appareils et services.": ["HOLM Bins is not loaded: check the integration in Settings → Devices & services.", "HOLM Mülltonnen ist nicht geladen: Integration unter Einstellungen → Geräte & Dienste prüfen.", "HOLM Cubos no está cargado: revise la integración en Ajustes → Dispositivos y servicios.", "HOLM Bidoni non è caricato: controlla l'integrazione in Impostazioni → Dispositivi e servizi.", "HOLM Containers is niet geladen: controleer de integratie in Instellingen → Apparaten & diensten.", "HOLM Lixo não está carregado: verifique a integração em Definições → Dispositivos e serviços.", "HOLM Kosze nie jest załadowane: sprawdź integrację w Ustawienia → Urządzenia i usługi."],
+    "Cette carte n'affiche que certaines poubelles (option « Poubelles affichées »).": ["This card only shows some bins (\"Bins shown\" option).", "Diese Karte zeigt nur einige Tonnen (Option „Angezeigte Tonnen“).", "Esta tarjeta solo muestra algunos cubos (opción «Cubos mostrados»).", "Questa scheda mostra solo alcuni bidoni (opzione «Bidoni mostrati»).", "Deze kaart toont maar enkele containers (optie \"Getoonde containers\").", "Este cartão só mostra alguns caixotes (opção «Caixotes mostrados»).", "Ta karta pokazuje tylko niektóre kosze (opcja „Wyświetlane kosze”)."],
+    "Voir toutes les poubelles": ["Show all bins", "Alle Tonnen zeigen", "Ver todos los cubos", "Mostra tutti i bidoni", "Alle containers tonen", "Ver todos os caixotes", "Pokaż wszystkie kosze"],
+    "Seulement celles de cette carte": ["Only this card's bins", "Nur die dieser Karte", "Solo los de esta tarjeta", "Solo quelli di questa scheda", "Alleen die van deze kaart", "Só os deste cartão", "Tylko kosze tej karty"],
+    "Pour l'afficher sur cette carte, ajoutez-la dans « Poubelles affichées » (éditeur de la carte).": ["To show it on this card, add it to \"Bins shown\" (card editor).", "Um sie auf dieser Karte zu zeigen, unter „Angezeigte Tonnen“ hinzufügen (Karteneditor).", "Para mostrarlo en esta tarjeta, añádalo en «Cubos mostrados» (editor de la tarjeta).", "Per mostrarlo su questa scheda, aggiungilo in «Bidoni mostrati» (editor della scheda).", "Voeg hem toe aan \"Getoonde containers\" (kaarteditor) om hem op deze kaart te zien.", "Para o mostrar neste cartão, adicione-o em «Caixotes mostrados» (editor do cartão).", "Aby był widoczny na tej karcie, dodaj go w „Wyświetlane kosze” (edytor karty)."],
+    "Mot-clé dans le nom de l'événement (facultatif)": ["Keyword in the event name (optional)", "Stichwort im Terminnamen (optional)", "Palabra clave en el nombre del evento (opcional)", "Parola chiave nel nome dell'evento (facoltativa)", "Trefwoord in de naam van de afspraak (optioneel)", "Palavra-chave no nome do evento (opcional)", "Słowo kluczowe w nazwie wydarzenia (opcjonalnie)"],
+    "Pour un calendrier commun à plusieurs poubelles : seuls les événements dont le nom contient ce mot comptent (plusieurs mots : séparés par des virgules).": ["For a calendar shared by several bins: only events whose name contains this word count (several words: comma-separated).", "Für einen Kalender mehrerer Tonnen: nur Termine, deren Name dieses Wort enthält, zählen (mehrere Wörter: durch Kommas getrennt).", "Para un calendario común a varios cubos: solo cuentan los eventos cuyo nombre contiene esta palabra (varias palabras: separadas por comas).", "Per un calendario comune a più bidoni: contano solo gli eventi il cui nome contiene questa parola (più parole: separate da virgole).", "Voor een kalender van meerdere containers: alleen afspraken met dit woord in de naam tellen (meerdere woorden: gescheiden door komma's).", "Para um calendário comum a vários caixotes: só contam os eventos cujo nome contém esta palavra (várias palavras: separadas por vírgulas).", "Dla kalendarza wspólnego dla kilku koszy: liczą się tylko wydarzenia, których nazwa zawiera to słowo (kilka słów: oddziel przecinkami)."],
+    "Événements du calendrier :": ["Calendar events:", "Kalendertermine:", "Eventos del calendario:", "Eventi del calendario:", "Afspraken in de kalender:", "Eventos do calendário:", "Wydarzenia w kalendarzu:"],
+    "Calendrier {c} · « {k} »": ["Calendar {c} · \"{k}\"", "Kalender {c} · „{k}“", "Calendario {c} · «{k}»", "Calendario {c} · «{k}»", "Kalender {c} · \"{k}\"", "Calendário {c} · «{k}»", "Kalendarz {c} · „{k}”"],
+    "Textes des notifications (facultatif)": ["Notification texts (optional)", "Benachrichtigungstexte (optional)", "Textos de las notificaciones (opcional)", "Testi delle notifiche (facoltativi)", "Teksten van de meldingen (optioneel)", "Textos das notificações (opcional)", "Teksty powiadomień (opcjonalnie)"],
+    "Vide = texte par défaut. Variables : {{ poubelles }} et {{ date }}. Les modèles Home Assistant fonctionnent aussi, par exemple {{ states('input_text.message_poubelles') }}.": ["Empty = default text. Variables: {{ poubelles }} (bins) and {{ date }}. Home Assistant templates work too, e.g. {{ states('input_text.bins_message') }}.", "Leer = Standardtext. Variablen: {{ poubelles }} (Tonnen) und {{ date }}. Home-Assistant-Vorlagen gehen auch, z. B. {{ states('input_text.muell_text') }}.", "Vacío = texto por defecto. Variables: {{ poubelles }} (cubos) y {{ date }}. También funcionan las plantillas de Home Assistant, p. ej. {{ states('input_text.mensaje_cubos') }}.", "Vuoto = testo predefinito. Variabili: {{ poubelles }} (bidoni) e {{ date }}. Funzionano anche i modelli di Home Assistant, es. {{ states('input_text.messaggio_bidoni') }}.", "Leeg = standaardtekst. Variabelen: {{ poubelles }} (containers) en {{ date }}. Home Assistant-sjablonen werken ook, bv. {{ states('input_text.bericht_containers') }}.", "Vazio = texto predefinido. Variáveis: {{ poubelles }} (caixotes) e {{ date }}. Os modelos do Home Assistant também funcionam, p. ex. {{ states('input_text.mensagem_lixo') }}.", "Puste = tekst domyślny. Zmienne: {{ poubelles }} (kosze) i {{ date }}. Działają też szablony Home Assistant, np. {{ states('input_text.wiadomosc_kosze') }}."],
+    "La veille": ["The day before", "Am Vortag", "La víspera", "Il giorno prima", "De dag ervoor", "Na véspera", "Dzień wcześniej"],
+    "Le matin de la collecte": ["Collection morning", "Am Morgen der Abholung", "La mañana de la recogida", "La mattina della raccolta", "De ochtend van de ophaling", "Na manhã da recolha", "Rano w dniu odbioru"],
+    "Relance": ["Follow-up", "Erinnerung", "Recordatorio", "Sollecito", "Herinnering", "Lembrete", "Ponowne przypomnienie"],
+    "Fond de la carte (couleur ou variable de thème)": ["Card background (colour or theme variable)", "Kartenhintergrund (Farbe oder Theme-Variable)", "Fondo de la tarjeta (color o variable del tema)", "Sfondo della scheda (colore o variabile del tema)", "Achtergrond van de kaart (kleur of themavariabele)", "Fundo do cartão (cor ou variável do tema)", "Tło karty (kolor lub zmienna motywu)"],
     "1er": ["1st", "1.", "1.er", "1°", "1e", "1.º", "1."],
     "2e": ["2nd", "2.", "2.º", "2°", "2e", "2.º", "2."],
     "3e": ["3rd", "3.", "3.er", "3°", "3e", "3.º", "3."],
@@ -152,6 +170,7 @@
   const _ = (s, v) => { let o = LANG === "fr" ? s : ((I18N[s] && I18N[s][HOLM_LANGS.indexOf(LANG)]) || s); if (v) for (const k in v) o = o.split("{" + k + "}").join(v[k]); return o; };
   const langField = () => ({ name: "language", selector: { select: { mode: "dropdown", options: [{ value: "", label: _("Automatique (profil)") }, ...Object.entries(LANG_NAMES).map(([value, label]) => ({ value, label }))] } } });
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const errText = (e) => (e && e.code === "not_loaded" ? _("HOLM Poubelles n'est pas chargé : vérifiez l'intégration dans Paramètres → Appareils et services.") : (e && e.message) || e);
   const clone = (o) => JSON.parse(JSON.stringify(o));
   const iso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
   const parseIso = (s) => { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s || ""); return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null; };
@@ -257,6 +276,7 @@
       setLang(this._hass, this._c);
       const r = this.shadowRoot, card = r.querySelector("ha-card"), box = r.getElementById("bins"), hd = r.getElementById("hd");
       card.dataset.layout = this._c.layout || "row";
+      card.style.background = this._c.background || "";   // couleur, dégradé ou variable de thème (var(--…))
       const gear = this._c.show_settings !== false && this._admin() ? `<button class="gear" title="${esc(_("Réglages des poubelles"))}"><ha-icon icon="mdi:cog-outline"></ha-icon></button>` : "";
       hd.innerHTML = this._c.title ? `<div class="ttl">${esc(this._c.title)}</div>${gear}` : "";
       hd.style.display = this._c.title ? "" : "none";
@@ -297,12 +317,16 @@
       box.classList.add("on");
       box.innerHTML = `<div class="sh">${_("Chargement…")}</div>`;
       try { this._cfg = await this._hass.callWS({ type: "holm_bins/get" }); }
-      catch (e) { box.innerHTML = `<div class="sh err">${esc(_("Intégration HOLM Poubelles introuvable : {e}", { e: e.message || e }))}</div>`; return; }
+      catch (e) { box.innerHTML = `<div class="sh err">${esc(_("Intégration HOLM Poubelles introuvable : {e}", { e: errText(e) }))}</div>`; return; }
       this._draft = { bins: clone(this._cfg.bins), settings: clone(this._cfg.settings) };
-      this._open = this._draft.bins.length ? 0 : -1;
+      this._showAll = false;
+      this._open = this._draft.bins.findIndex((b) => this._mine(b));
       this._tab = "bins";
       this._drawSettings();
     }
+    // poubelles de cette carte (option « Poubelles affichées ») ; sans filtre, ou « voir toutes », toutes
+    _filtered() { return !!(this._c.bins && this._c.bins.length) && !this._showAll; }
+    _mine(b) { return !this._filtered() || !b.id || this._c.bins.includes(b.id); }
     _closeSettings() { const box = this.shadowRoot.getElementById("set"); box.classList.remove("on"); box.innerHTML = ""; this._preview = ""; this._key = ""; this._render(); }
     _animOptions(cur) {
       const fx = fxList();
@@ -310,7 +334,7 @@
         ${fx.length ? `<optgroup label="HOLM FX">${fx.map((a) => `<option value="fx:${esc(a.id)}" ${cur === "fx:" + a.id ? "selected" : ""}>${esc(a.name)}</option>`).join("")}</optgroup>` : ""}`;
     }
     _ruleText(b) {
-      if (b.source === "calendar") return _("Calendrier {c}", { c: b.calendar ? (this._hass.states[b.calendar]?.attributes.friendly_name || b.calendar) : "—" });
+      if (b.source === "calendar") { const c = b.calendar ? (this._hass.states[b.calendar]?.attributes.friendly_name || b.calendar) : "—"; return b.keyword ? _("Calendrier {c} · « {k} »", { c, k: b.keyword }) : _("Calendrier {c}", { c }); }
       if (b.source === "dates") return _("{n} date(s) saisie(s)", { n: (b.extra || []).length });
       const r = b.rule || {};
       if (r.type === "monthly") return _("Le {n} {d} du mois", { n: r.nth === -1 ? _("dernier") : _(["1er", "2e", "3e", "4e"][(r.nth || 1) - 1]), d: dayName(r.weekday || 0) });
@@ -324,12 +348,15 @@
         <button class="tab ${this._tab === "cam" ? "on" : ""}" data-tab="cam"><ha-icon icon="mdi:cctv"></ha-icon>${_("Caméra")}</button></div>`;
       let body = "";
       if (this._tab === "bins") {
-        body = d.bins.map((b, i) => `<div class="acc ${this._open === i ? "open" : ""}" data-i="${i}" style="--c:${esc(b.color)};--ink:${ink(b.color)}">
+        const filt = this._c.bins && this._c.bins.length;
+        body = (filt ? `<div class="hint row">${_("Cette carte n'affiche que certaines poubelles (option « Poubelles affichées »).")}
+            <button class="lnk all">${this._showAll ? _("Seulement celles de cette carte") : _("Voir toutes les poubelles")}</button></div>` : "")
+          + d.bins.map((b, i) => !this._mine(b) ? "" : `<div class="acc ${this._open === i ? "open" : ""}" data-i="${i}" style="--c:${esc(b.color)};--ink:${ink(b.color)}">
           <div class="acch"><span class="dot"></span><b>${esc(b.name)}</b><span class="rt">${esc(this._ruleText(b))}</span>
             <button class="ib up" title="${esc(_("Monter"))}" ${i === 0 ? "disabled" : ""}><ha-icon icon="mdi:chevron-up"></ha-icon></button>
             <button class="ib dn" title="${esc(_("Descendre"))}" ${i === d.bins.length - 1 ? "disabled" : ""}><ha-icon icon="mdi:chevron-down"></ha-icon></button>
             <ha-icon class="chev" icon="mdi:chevron-${this._open === i ? "up" : "down"}"></ha-icon></div>
-          ${this._open === i ? this._binForm(b, i) : ""}</div>`).join("")
+          ${this._open === i ? this._binForm(b, i) : ""}${filt && !b.id ? `<div class="hint nb">${_("Pour l'afficher sur cette carte, ajoutez-la dans « Poubelles affichées » (éditeur de la carte).")}</div>` : ""}</div>`).join("")
           + `<button class="add"><ha-icon icon="mdi:plus"></ha-icon>${_("Ajouter une poubelle")}</button>`;
       } else if (this._tab === "cam") {
         body = this._camForm(s);
@@ -344,6 +371,10 @@
             <label class="fl"><span>${_("Rappel le matin de la collecte à")}</span><span class="row"><input type="time" data-s="morning" value="${esc(s.morning || "07:00")}" ${s.morning ? "" : "disabled"}><input type="checkbox" data-on="morning" ${s.morning ? "checked" : ""}></span></label>
             <label class="fl"><span>${_("Le jour de collecte, passer à la suivante à")}</span><input type="time" data-s="end" value="${esc(s.end)}"></label>
           </div>
+          <div class="sep"></div>
+          <div class="fl"><label>${_("Textes des notifications (facultatif)")}</label></div>
+          <div class="hint">${esc(_("Vide = texte par défaut. Variables : {{ poubelles }} et {{ date }}. Les modèles Home Assistant fonctionnent aussi, par exemple {{ states('input_text.message_poubelles') }}."))}</div>
+          ${[["text_eve", "La veille"], ["text_today", "Le matin de la collecte"], ["text_reminder", "Relance"]].map(([k, l]) => `<label class="fl"><span>${_(l)}</span><textarea data-s="${k}" rows="2" maxlength="500" placeholder="${esc(_({ text_eve: "Ce soir : {bins} (collecte demain, {date}).", text_today: "Aujourd'hui : {bins} (collecte ce jour).", text_reminder: "Pas encore sortie : {bins}." }[k], { bins: "{{ poubelles }}", date: "{{ date }}" }))}">${esc(s[k] || "")}</textarea></label>`).join("")}
           <button class="add test"><ha-icon icon="mdi:send-outline"></ha-icon>${_("Envoyer une notification de test")}</button>`;
       }
       box.innerHTML = `${tabs}<div class="body">${body}</div>${msg ? `<div class="msg">${esc(msg)}</div>` : ""}
@@ -399,7 +430,10 @@
           : `<div class="grid2"><label class="fl"><span>${_("Le")}</span><select data-r="nth">${[[1, "1er"], [2, "2e"], [3, "3e"], [4, "4e"], [-1, "dernier"]].map(([v, l]) => `<option value="${v}" ${+r.nth === v ? "selected" : ""}>${esc(_(l))}</option>`).join("")}</select></label>
             <label class="fl"><span>${_("Jour")}</span><select data-r="weekday">${[0, 1, 2, 3, 4, 5, 6].map((x) => `<option value="${x}" ${+r.weekday === x ? "selected" : ""}>${esc(dayName(x))}</option>`).join("")}</select></label></div>`}
           <label class="ck"><input type="checkbox" data-f="holidays" ${b.holidays ? "checked" : ""}>${_("Décaler au lendemain les jours fériés")}</label>` : ""}
-        ${src === "calendar" ? `<label class="fl"><span>${_("Calendrier")}</span><select data-f="calendar"><option value="">—</option>${cals.map((c) => `<option value="${esc(c)}" ${b.calendar === c ? "selected" : ""}>${esc(this._hass.states[c].attributes.friendly_name || c)}</option>`).join("")}</select></label>` : ""}
+        ${src === "calendar" ? `<div class="grid2"><label class="fl"><span>${_("Calendrier")}</span><select data-f="calendar"><option value="">—</option>${cals.map((c) => `<option value="${esc(c)}" ${b.calendar === c ? "selected" : ""}>${esc(this._hass.states[c].attributes.friendly_name || c)}</option>`).join("")}</select></label>
+          <label class="fl"><span>${_("Mot-clé dans le nom de l'événement (facultatif)")}</span><input type="text" data-f="keyword" maxlength="80" placeholder="Tri, recyclage" value="${esc(b.keyword || "")}"></label></div>
+          <div class="hint">${_("Pour un calendrier commun à plusieurs poubelles : seuls les événements dont le nom contient ce mot comptent (plusieurs mots : séparés par des virgules).")}</div>
+          <div class="kws chips"></div>` : ""}
         ${src !== "dates" ? `<div class="fl"><label>${_("Mois de collecte (aucun = toute l'année)")}</label><div class="days months">${Array.from({ length: 12 }, (_x, m) => `<button data-mo="${m + 1}" class="${(b.months || []).includes(m + 1) ? "on" : ""}">${esc(monthName(m))}</button>`).join("")}</div></div>` : ""}
         ${dateList("extra", src === "dates" ? "Dates de collecte" : "Dates ajoutées", "mdi:calendar-plus")}
         ${src !== "dates" ? dateList("skip", "Dates annulées", "mdi:calendar-remove") : ""}
@@ -416,6 +450,8 @@
     _wire(box) {
       const d = this._draft, s = d.settings, cur = () => d.bins[this._open];
       box.querySelectorAll(".tab").forEach((t) => t.addEventListener("click", () => { this._tab = t.dataset.tab; this._drawSettings(); }));
+      const all = box.querySelector(".all");
+      if (all) all.addEventListener("click", () => { this._showAll = !this._showAll; if (this._open >= 0 && !this._mine(d.bins[this._open])) this._open = -1; this._drawSettings(); });
       box.querySelector(".cancel").addEventListener("click", () => this._closeSettings());
       box.querySelector(".save").addEventListener("click", () => this._save());
       // ---- rappels ----
@@ -424,8 +460,8 @@
       box.querySelectorAll("[data-on]").forEach((c) => c.addEventListener("change", () => { const k = c.dataset.on, inp = box.querySelector(`[data-s="${k}"]`); inp.disabled = !c.checked; s[k] = c.checked ? inp.value : ""; }));
       const test = box.querySelector(".test");
       if (test) test.addEventListener("click", async () => {
-        try { await this._hass.callWS({ type: "holm_bins/save", bins: d.bins, settings: s }); const r = await this._hass.callWS({ type: "holm_bins/test" }); this._drawSettings(r.sent ? _("Notification envoyée à {n} appareil(s).", { n: r.sent }) : _("Aucun destinataire valide : cochez au moins un appareil.")); }
-        catch (e) { this._drawSettings(_("Envoi impossible : {e}", { e: e.message || e })); }
+        try { await this._saveDraft(); const r = await this._hass.callWS({ type: "holm_bins/test" }); this._drawSettings(r.sent ? _("Notification envoyée à {n} appareil(s).", { n: r.sent }) : _("Aucun destinataire valide : cochez au moins un appareil.")); }
+        catch (e) { this._drawSettings(_("Envoi impossible : {e}", { e: errText(e) })); }
       });
       // ---- caméra ----
       box.querySelectorAll("[data-c]").forEach((inp) => inp.addEventListener("change", () => { const k = inp.dataset.c; s[k] = inp.type === "checkbox" ? inp.checked : inp.value; if (k === "camera") this._drawSettings(); }));
@@ -433,8 +469,8 @@
       const chk = box.querySelector(".check");
       if (chk) chk.addEventListener("click", async () => {
         chk.disabled = true; chk.textContent = _("Vérification en cours…");
-        try { await this._hass.callWS({ type: "holm_bins/save", bins: d.bins, settings: s }); const r = await this._hass.callWS({ type: "holm_bins/check" }); this._cfg.last_check = r; this._drawSettings(r.skipped ? _("Rien à vérifier : choisissez une caméra.") : r.error ? _("Vérification impossible : {e}", { e: r.error }) : ""); }
-        catch (e) { this._drawSettings(_("Vérification impossible : {e}", { e: e.message || e })); }
+        try { await this._saveDraft(); const r = await this._hass.callWS({ type: "holm_bins/check" }); this._cfg.last_check = r; this._drawSettings(r.skipped ? _("Rien à vérifier : choisissez une caméra.") : r.error ? _("Vérification impossible : {e}", { e: r.error }) : ""); }
+        catch (e) { this._drawSettings(_("Vérification impossible : {e}", { e: errText(e) })); }
       });
       // ---- poubelles ----
       box.querySelectorAll(".acch").forEach((h) => h.addEventListener("click", (e) => {
@@ -455,6 +491,7 @@
       box.querySelectorAll("[data-f]").forEach((inp) => inp.addEventListener(inp.type === "text" && inp.dataset.f !== "image" ? "input" : "change", () => {
         const k = inp.dataset.f; b[k] = inp.type === "checkbox" ? inp.checked : inp.value;
         if (k === "name") { const t = box.querySelector(".acc.open .acch b"); if (t) t.textContent = inp.value; return; }
+        if (k === "keyword") { const t = box.querySelector(".acc.open .acch .rt"); if (t) t.textContent = this._ruleText(b); clearTimeout(this._kt); this._kt = setTimeout(again, 350); return; }
         if (k === "image") { b.image = inp.value.trim(); return redraw(); }
         if (k === "color") return redraw();
         if (k === "calendar" || k === "holidays") again();
@@ -497,13 +534,19 @@
           const r = await fetch("/api/image/upload", { method: "POST", body: fd, headers: { Authorization: `Bearer ${this._hass.auth.data.access_token}` } });
           if (!r.ok) throw new Error(`${r.status}`);
           const j = await r.json(); b.image = `/api/image/serve/${j.id}/512x512`; redraw();
-        } catch (e) { this._drawSettings(_("Téléversement impossible : {e}", { e: e.message || e })); }
+        } catch (e) { this._drawSettings(_("Téléversement impossible : {e}", { e: errText(e) })); }
       }); }
       const del = box.querySelector(".del");
       if (del) del.addEventListener("click", () => {
         if (del.dataset.sure) { d.bins.splice(this._open, 1); this._open = -1; return redraw(); }
         del.dataset.sure = "1"; del.innerHTML = `<ha-icon icon="mdi:alert-outline"></ha-icon>${esc(_("Confirmer la suppression"))}`;
       });
+    }
+    // enregistre le brouillon (bouton de test) et récupère les identifiants des poubelles nouvellement créées
+    async _saveDraft() {
+      const d = this._draft, r = await this._hass.callWS({ type: "holm_bins/save", bins: d.bins, settings: d.settings });
+      if (r && Array.isArray(r.bins) && r.bins.length === d.bins.length) r.bins.forEach((b, i) => { d.bins[i].id = b.id; });
+      return r;
     }
     async _refreshPreview() {
       const b = this._draft.bins[this._open], el = this.shadowRoot.querySelector(".pv"); if (!b || !el) return;
@@ -512,6 +555,11 @@
         const r = await this._hass.callWS({ type: "holm_bins/preview", bin: b, count: 6 });
         if (seq !== this._pseq) return;
         const ok = this.shadowRoot.querySelector(".pv"); if (ok) ok.textContent = r.dates.length ? r.dates.map((x) => fmtDate(x)).join(" · ") : _("aucune");
+        const kw = this.shadowRoot.querySelector(".kws");
+        if (kw) {
+          kw.innerHTML = (r.names || []).length ? `<span class="hint">${esc(_("Événements du calendrier :"))}</span>${r.names.map((n) => `<button class="chip kwc" data-k="${esc(n)}">${esc(n)}</button>`).join("")}` : "";
+          kw.querySelectorAll(".kwc").forEach((c) => c.addEventListener("click", () => { b.keyword = c.dataset.k; const i = this.shadowRoot.querySelector('[data-f="keyword"]'); if (i) i.value = b.keyword; const t = this.shadowRoot.querySelector(".acc.open .acch .rt"); if (t) t.textContent = this._ruleText(b); this._refreshPreview(); }));
+        }
       } catch (e) { el.textContent = "—"; }
     }
     async _save() {
@@ -524,7 +572,7 @@
       }
       const btn = this.shadowRoot.querySelector(".set .save"); if (btn) { btn.disabled = true; btn.textContent = _("Enregistrement…"); }
       try { await this._hass.callWS({ type: "holm_bins/save", bins: d.bins, settings: d.settings }); this._closeSettings(); }
-      catch (e) { this._drawSettings(_("Enregistrement impossible : {e}", { e: e.message || e })); }
+      catch (e) { this._drawSettings(_("Enregistrement impossible : {e}", { e: errText(e) })); }
     }
 
     static css() {
@@ -550,7 +598,7 @@
       ha-card[data-layout="list"] .bin { flex-direction:row; text-align:left; }
       ha-card[data-layout="list"] .pic { width:46px; height:52px; }
       ha-card[data-layout="list"] .txt { flex:1; }
-      ha-card[data-layout="compact"] .bins { flex-wrap:wrap; gap:6px; }
+      ha-card[data-layout="compact"] .bins { flex-wrap:wrap; gap:6px; justify-content:center; }
       ha-card[data-layout="compact"] .bin { flex-direction:row; padding:4px 10px 4px 4px; border-radius:22px; gap:6px; }
       ha-card[data-layout="compact"] .pic { width:28px; height:32px; }
       ha-card[data-layout="compact"] .nm, ha-card[data-layout="compact"] .dt, ha-card[data-layout="compact"] .bar { display:none; }
@@ -655,6 +703,10 @@
       .prev ha-icon { --mdc-icon-size:16px; color: var(--c); } .prev span:nth-child(2) { font-weight:700; } .pv { opacity:.9; }
       .sep { height:1px; background: rgba(127,127,127,.2); margin:10px 0 2px; }
       .hint { font-size:11.5px; opacity:.7; margin:4px 0 8px; line-height:1.4; }
+      .hint.row { display:flex; flex-wrap:wrap; align-items:center; gap:6px; } .hint.nb { margin:0 12px 8px; }
+      .lnk { border:0; background:none; color: var(--primary-color); font:inherit; font-weight:700; cursor:pointer; padding:0; text-decoration:underline; }
+      .kws { margin:-2px 0 6px; } .kws .hint { margin:0 4px 0 0; } .kwc { border:0; font:inherit; font-size:12px; color:inherit; }
+      textarea { padding:6px 8px; border-radius:8px; border:1px solid rgba(127,127,127,.35); font:inherit; font-size:13px; background: var(--card-background-color, #fff); color: var(--primary-text-color, #222); resize:vertical; width:100%; box-sizing:border-box; }
       .add { display:inline-flex; align-items:center; gap:5px; border:0; border-radius:10px; padding:7px 12px; font:inherit; font-size:12.5px; font-weight:600; cursor:pointer; background: rgba(127,127,127,.14); color:inherit; margin-top:4px; }
       .add ha-icon, .acts ha-icon, .del ha-icon { --mdc-icon-size:16px; }
       .imgrow { display:flex; gap:10px; align-items:flex-start; margin-top:6px; }
@@ -696,6 +748,7 @@
         this._form.schema = locSchema([
           langField(),
           { name: "title", selector: { text: {} } },
+          { name: "background", selector: { text: {} } },
           { name: "layout", selector: { select: { mode: "dropdown", options: [{ value: "row", label: "En rangée" }, { value: "list", label: "En liste" }, { value: "compact", label: "Compacte (pastilles)" }] } } },
           { name: "bins", selector: { select: { multiple: true, mode: "list", options: bins.map((b) => ({ value: b.attributes.holm_bins, label: b.attributes.nom })) } } },
           { name: "sort", selector: { select: { mode: "dropdown", options: [{ value: "", label: "Ordre des réglages" }, { value: "date", label: "Prochaine collecte d'abord" }] } } },
@@ -704,7 +757,7 @@
           { type: "grid", name: "", schema: [{ name: "show_date", selector: { boolean: {} } }, { name: "show_progress", selector: { boolean: {} } }, { name: "fx", selector: { boolean: {} } }, { name: "show_settings", selector: { boolean: {} } }] },
         ]);
         const L = { language: "Langue", title: "Titre (optionnel)", layout: "Disposition", bins: "Poubelles affichées (aucune = toutes)", sort: "Ordre",
-          hide_after: "Masquer les collectes au-delà de (0 = jamais)", tap_action: "Appui sur une poubelle", show_date: "Afficher la date", show_progress: "Barre d'approche de la collecte",
+          hide_after: "Masquer les collectes au-delà de (0 = jamais)", background: "Fond de la carte (couleur ou variable de thème)", tap_action: "Appui sur une poubelle", show_date: "Afficher la date", show_progress: "Barre d'approche de la collecte",
           fx: "Ambiances HOLM FX", show_settings: "Bouton Réglages (administrateurs)" };
         this._form.computeLabel = (s) => (L[s.name] ? _(L[s.name]) : s.name);
         this._form.addEventListener("value-changed", (ev) => {

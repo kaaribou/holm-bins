@@ -29,7 +29,16 @@ HOLM Bins knows the collection days of each of your bins: a **recurrence** (ever
 
 > Screenshots are in French; the card follows your Home Assistant profile language.
 
-### 🆕 What's new in 1.1.0
+### 🆕 What's new in 1.2.0
+
+- 📅 **One calendar for several bins**: a **keyword** per bin ("Garbage", "Recycling"…) keeps only the events whose name contains it. See [A calendar shared by several bins](#a-calendar-shared-by-several-bins).
+- ✍️ **Custom notification texts**, with the `{{ poubelles }}` (bins) and `{{ date }}` variables, or an `input_text`. See [Notification texts](#notification-texts).
+- 🗂️ **One card per bin (or per group)**: the gear of a card limited with "Bins shown" only shows its own bins. See [Several cards](#several-cards).
+- 🎨 **Card background** of your choice (colour or theme variable) with the `background` option.
+- 🐞 The **Send a test notification** and **Check now** buttons no longer reply "HOLM Poubelles n'est pas configuré", and simple settings apply without reloading the integration.
+- 🐞 The **Compact** layout is centred in the card.
+
+### What's new in 1.1.0
 
 - 🖼️ **Custom bin image**: upload your image from the card (or give an address) to replace the drawing. See [Bin image](#bin-image).
 - 📷 **Camera check**: on the day before, at the chosen time, the camera and an AI task check that the bins are out; alert with the photo otherwise. See [Camera check](#camera-check).
@@ -108,11 +117,41 @@ actions:
 | **Follow-up if not out at** | Second reminder, only for bins not out yet (tick the box to turn it on) | 21:30 |
 | **Reminder on collection morning at** | Reminder on the day itself, if the bin is still not out (tick box) | off |
 | **On collection day, move to the next one at** | Time from which today's collection counts as done | 12:00 |
-| **Send a test notification** | Saves the settings and sends a test message to the ticked devices | |
+| **Notification texts** | Your own texts for the day before, the collection morning and the follow-up (see below). Empty = default text | empty |
+| **Send a test notification** | Saves the settings and sends a test message to the ticked devices (with your day-before text if filled in) | |
 
 Bins of the same collection are grouped into **one notification**. On the mobile app it has a **"Done"** button: it marks those bins as out and the notification is cleared from the other devices. Only bins with **Reminder notification** ticked are announced.
 
 ![Reminder settings](docs/images/reglages-rappels.png)
+
+### Notification texts
+
+At the bottom of the **Reminders** tab, three text boxes replace the default messages:
+
+| Box | Replaces | Default text |
+|---|---|---|
+| **The day before** | The reminder the day before | "Tonight: {{ poubelles }} (collection tomorrow, {{ date }})." |
+| **Collection morning** | The morning reminder | "Today: {{ poubelles }} (collection today)." |
+| **Follow-up** | The follow-up when the bin is not out | "Not out yet: {{ poubelles }}." |
+
+The greyed text in each box shows the default text. Variables:
+
+| Variable | Content | Example |
+|---|---|---|
+| `{{ poubelles }}` (or `{{ bins }}`) | The bins concerned | "Yellow bin and Glass" |
+| `{{ date }}` | Collection day | "Wednesday 18/11" |
+| `{{ jour }}` | Collection date as YYYY-MM-DD | "2026-11-18" |
+| `{{ liste }}` | Bin names as a list | `['Yellow bin', 'Glass']` |
+
+These are **Home Assistant templates**: you can read any entity, for example an `input_text` you change elsewhere:
+
+```jinja
+{{ states('input_text.bins_message') }}: {{ poubelles }}
+```
+
+A template with an error does not stop the reminder: the default text is sent instead (and the error is logged). The title and the "Done" button stay the same.
+
+![Notification texts](docs/images/textes-notifications.png)
 
 ## Camera check
 
@@ -205,6 +244,7 @@ With a custom image, "Lid opening" becomes a gentle sway of the image; the other
 | **Bin image** | **HOLM drawing** (the bin drawn in the chosen colour) or **Custom image** (see below) |
 | **Colour** | 10 ready-made colours, or any colour with the picker |
 | **Collection dates** | **Recurrence**, **Calendar** (any Home Assistant calendar: local, ICS, Google…) or **Manual dates** |
+| **Calendar** / **Keyword** | Calendar source: the calendar to read and, when it is used by several bins, the word the event name must contain (see below) |
 | **Weekly** / **Once a month** | Recurrence type |
 | **Day(s)** | One or more days of the week |
 | **Frequency** | Every week, or every 2, 3 or 4 weeks |
@@ -222,6 +262,26 @@ With a custom image, "Lid opening" becomes a gentle sway of the image; the other
 
 ![Bin settings](docs/images/reglages-poubelles.png)
 
+### A calendar shared by several bins
+
+All your collections are in **one calendar** ("Garbage" on Tuesday, "Recycling" on Thursday…)? Create one bin per collection type, choose the **Calendar** source and the same calendar for each, then fill in **Keyword in the event name**:
+
+| Bin | Calendar | Keyword | Events kept |
+|---|---|---|---|
+| Garbage | Collections | `garbage` | "Garbage collection" |
+| Recycling | Collections | `recycl, paper` | "Recycling", "Paper" |
+
+- **Case and accents** are ignored.
+- The word is matched at the **start of a word**: `tri` finds "Tri sélectif" but not "Patrimoine".
+- **Several words** separated by commas: any of them is enough.
+- **Empty keyword**: every event of the calendar counts (as before).
+- Under the field, **Calendar events** lists the names found in the calendar: tap one to use it as the keyword.
+- The **Next collections** preview updates as you type.
+
+In the list of bins, the summary becomes "Calendar Collections · "garbage"".
+
+![The keyword of a shared calendar](docs/images/mot-cle.png)
+
 ### Bin image
 
 In a bin's settings, choose **Custom image**:
@@ -238,8 +298,9 @@ A **PNG or SVG with a transparent background**, roughly square, looks best. It k
 |---|---|---|
 | `language` | Card language: `fr`, `en`, `de`, `es`, `it`, `nl`, `pt`, `pl` | profile language |
 | `title` | Title above the bins | none |
-| `layout` | `row` (side by side), `list` (one per line) or `compact` (pills: bin and delay only, ideal for a navigation bar) | `row` |
-| `bins` | List of bins to show (ids), in this order | all |
+| `background` | Card background: a colour (`#1e3a5f`), a gradient or a theme variable (`var(--primary-color)`, `var(--card-background-color)`…) | theme's |
+| `layout` | `row` (side by side), `list` (one per line) or `compact` (centred pills: bin and delay only, ideal for a navigation bar) | `row` |
+| `bins` | List of bins to show (ids), in this order. Also limits the gear to these bins (see [Several cards](#several-cards)) | all |
 | `sort` | `date`: next collection first | settings order |
 | `hide_after` | Hide bins whose collection is more than N days away (0 = never) | `0` |
 | `tap_action` | `out` (mark out the day before and on collection day, otherwise details), `more-info` or `none` | `out` |
@@ -249,6 +310,25 @@ A **PNG or SVG with a transparent background**, roughly square, looks best. It k
 | `show_settings` | ⚙ Settings button (administrators only) | `true` |
 
 The visual editor is available.
+
+### Several cards
+
+One card for the garbage bin, another for recycling? In each card's editor, tick its bins in **Bins shown**:
+
+```yaml
+type: custom:holm-bins-card
+title: Recycling
+bins:
+  - tri
+background: var(--primary-color)
+```
+
+- The card only shows these bins.
+- Its **gear** only shows these bins too. A banner says so at the top of the Bins tab, with a **Show all bins** link to see them all (and **Only this card's bins** to go back).
+- The **Reminders** and **Camera** tabs stay shared by all cards: they are the integration's settings.
+- A bin **added** from a limited card only appears on it once added to **Bins shown** in the card editor (a message under the new bin reminds you).
+
+![The gear of a card limited to some bins](docs/images/carte-filtree.png)
 
 ## Good to know
 
@@ -263,6 +343,10 @@ The visual editor is available.
 **The bin stays "Today" all day.** Set *On collection day, move to the next one at* in the Reminders tab.
 
 **I get no reminder.** Tick at least one device in *Send to*, check *Reminder notification* on the bin, and try *Send a test notification*.
+
+**"HOLM Bins is not loaded"** shows in the settings. The integration is not installed or did not start: check it in *Settings → Devices & services → HOLM Poubelles* (and the log). Before 1.2.0, this message could also wrongly appear on the test buttons: update.
+
+**All my collections are in one calendar.** Use a [keyword per bin](#a-calendar-shared-by-several-bins).
 
 ---
 
