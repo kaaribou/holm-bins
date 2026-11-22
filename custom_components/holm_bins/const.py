@@ -1,6 +1,6 @@
 """Constantes de HOLM Poubelles."""
 DOMAIN = "holm_bins"
-VERSION = "1.2.0"
+VERSION = "1.3.0"
 NAME = "HOLM Poubelles"
 
 STORE_KEY = "holm_bins.data"
@@ -45,6 +45,9 @@ DEFAULT_SETTINGS = {
     "text_eve": "",
     "text_today": "",
     "text_reminder": "",
+    # titres personnalisés (vide = titre par défaut), mêmes variables que les textes
+    "title_notif": "",      # rappel de la veille et du matin de la collecte
+    "title_reminder": "",   # relance
 }
 
 DEFAULT_BIN = {

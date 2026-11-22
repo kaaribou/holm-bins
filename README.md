@@ -27,7 +27,16 @@ HOLM Poubelles connaît les jours de collecte de chacune de vos poubelles : une 
 |---|---|
 | ![La carte HOLM Poubelles](docs/images/carte.png) | ![Les états des poubelles](docs/images/apercu-etats.png) |
 
-### 🆕 Nouveautés de la 1.2.0
+### 🆕 Nouveautés de la 1.3.0
+
+- 🏷️ **Titres des notifications personnalisables** : le titre du rappel (la veille et le matin) et celui de la relance, avec les mêmes variables que les textes. Voir [Les titres et textes des notifications](#les-titres-et-textes-des-notifications).
+- 🔲 **Arrondi des bords** réglable : option `border_radius` dans la carte, ou variable de thème `holm-bins-border-radius` pour toutes vos cartes. Voir [Arrondi et espacement](#arrondi-et-espacement).
+- 📱 **Moins de place perdue** : marges réduites en haut et en bas de la carte, surtout avec un titre, et nouvelle option **Espacement : Réduit** pour un gain de place maximal sur mobile.
+- Mise à jour : **redémarrez Home Assistant** (les titres sont envoyés par l'intégration), puis rafraîchissez le navigateur (Ctrl+F5).
+
+![Espacement normal (en haut) et réduit avec un arrondi de 24 px (en bas)](docs/images/espacement.png)
+
+### Nouveautés de la 1.2.0
 
 - 📅 **Un seul calendrier pour plusieurs poubelles** : un **mot-clé** par poubelle (« Ordures », « Tri »…) ne garde que les événements dont le nom le contient. Voir [Un calendrier commun à plusieurs poubelles](#un-calendrier-commun-à-plusieurs-poubelles).
 - ✍️ **Textes des notifications personnalisables**, avec les variables `{{ poubelles }}` et `{{ date }}`, ou un `input_text`. Voir [Les textes des notifications](#les-textes-des-notifications).
@@ -115,24 +124,26 @@ Onglet **Rappels** des réglages de la carte :
 | **Relance si pas sortie à** | Deuxième rappel, seulement pour les poubelles pas encore sorties (case à cocher pour l'activer) | 21:30 |
 | **Rappel le matin de la collecte à** | Rappel le jour même, si la poubelle n'est toujours pas sortie (case à cocher) | désactivé |
 | **Le jour de collecte, passer à la suivante à** | Heure à partir de laquelle la collecte du jour est considérée comme faite | 12:00 |
-| **Textes des notifications** | Vos propres textes pour la veille, le matin de la collecte et la relance (voir ci-dessous). Vide = texte par défaut | vides |
-| **Envoyer une notification de test** | Enregistre les réglages et envoie un message de test aux appareils cochés (avec votre texte de la veille s'il est rempli) | |
+| **Titres et textes des notifications** | Vos propres titres (rappel et relance) et textes (veille, matin de la collecte, relance), voir ci-dessous. Vide = titre ou texte par défaut | vides |
+| **Envoyer une notification de test** | Enregistre les réglages et envoie un message de test aux appareils cochés (avec votre titre et votre texte de la veille s'ils sont remplis) | |
 
 Les poubelles d'une même collecte sont regroupées dans **une seule notification**. Sur l'application mobile, elle porte un bouton **« C'est fait »** : il marque ces poubelles comme sorties et la notification disparaît des autres appareils. Seules les poubelles dont **Notification de rappel** est cochée sont annoncées.
 
 ![Les réglages des rappels](docs/images/reglages-rappels.png)
 
-### Les textes des notifications
+### Les titres et textes des notifications
 
-En bas de l'onglet **Rappels**, trois zones de texte remplacent les messages par défaut :
+En bas de l'onglet **Rappels**, deux champs de titre et trois zones de texte remplacent les titres et messages par défaut :
 
-| Zone | Remplace | Texte par défaut |
+| Champ | Remplace | Par défaut |
 |---|---|---|
+| **Titre — la veille et le matin** | Le titre du rappel de la veille et du matin de la collecte | « 🗑️ Poubelles à sortir » |
+| **Titre — relance** | Le titre de la relance | « ⏰ Rappel poubelles » |
 | **La veille** | Le rappel de la veille | « Ce soir : {{ poubelles }} (collecte demain, {{ date }}). » |
 | **Le matin de la collecte** | Le rappel du matin | « Aujourd'hui : {{ poubelles }} (collecte ce jour). » |
 | **Relance** | La relance si la poubelle n'est pas sortie | « Pas encore sortie : {{ poubelles }}. » |
 
-Le texte grisé dans chaque zone rappelle le texte par défaut. Les variables :
+Le texte grisé dans chaque champ rappelle le titre ou le texte par défaut. Les titres et les textes acceptent les mêmes variables :
 
 | Variable | Contenu | Exemple |
 |---|---|---|
@@ -147,9 +158,11 @@ Ce sont des **modèles Home Assistant** : vous pouvez lire n'importe quelle enti
 {{ states('input_text.message_poubelles') }} : {{ poubelles }}
 ```
 
-Un modèle qui contient une erreur n'empêche pas le rappel : le texte par défaut est envoyé à sa place (et l'erreur est notée dans le journal). Le titre et le bouton « C'est fait » ne changent pas.
+Un titre au même format que vos autres notifications, par exemple : `🏠 Maison · {{ poubelles }}`.
 
-![Les textes des notifications](docs/images/textes-notifications.png)
+Un modèle qui contient une erreur n'empêche pas le rappel : le texte par défaut est envoyé à sa place (et l'erreur est notée dans le journal) ; de même pour un titre. Le bouton « C'est fait » ne change pas. L'alerte de la caméra garde son propre titre.
+
+![Les titres et textes des notifications](docs/images/textes-notifications.png)
 
 ## La vérification par caméra
 
@@ -297,6 +310,8 @@ Une image **PNG ou SVG au fond transparent**, à peu près carrée, donne le mei
 | `language` | Langue de la carte : `fr`, `en`, `de`, `es`, `it`, `nl`, `pt`, `pl` | celle du profil |
 | `title` | Titre au-dessus des poubelles | aucun |
 | `background` | Fond de la carte : une couleur (`#1e3a5f`), un dégradé ou une variable de thème (`var(--primary-color)`, `var(--card-background-color)`…) | celui du thème |
+| `border_radius` | Arrondi des bords de la carte : `16px`, `16` ou `0` (angles droits). Voir [Arrondi et espacement](#arrondi-et-espacement) | celui du thème |
+| `spacing` | `normal` ou `compact` (espacement réduit : moins de marge autour de la carte, du titre et des poubelles, bacs un peu plus petits) | `normal` |
 | `layout` | `row` (côte à côte), `list` (une par ligne) ou `compact` (pastilles centrées : bac et délai seulement, idéal pour une barre de navigation) | `row` |
 | `bins` | Liste des poubelles à afficher (identifiants), dans cet ordre. Limite aussi la roue crantée à ces poubelles (voir [Plusieurs cartes](#plusieurs-cartes)) | toutes |
 | `sort` | `date` : la prochaine collecte d'abord | ordre des réglages |
@@ -308,6 +323,20 @@ Une image **PNG ou SVG au fond transparent**, à peu près carrée, donne le mei
 | `show_settings` | Bouton ⚙ Réglages (administrateurs seulement) | `true` |
 
 L'éditeur visuel est disponible.
+
+### Arrondi et espacement
+
+- **Arrondi des bords** (`border_radius`, champ « Arrondi des bords » de l'éditeur) : vide, la carte prend l'arrondi de votre thème. Pour régler toutes vos cartes HOLM Poubelles d'un coup, ajoutez la variable dans votre thème :
+
+  ```yaml
+  mon_theme:
+    holm-bins-border-radius: 16px
+  ```
+
+  L'option de la carte l'emporte sur la variable du thème, qui l'emporte sur l'arrondi des cartes du thème (`ha-card-border-radius`).
+- **Espacement** (`spacing`, champ « Espacement ») : **Normal**, ou **Réduit (gain de place)** pour mobile : marges de la carte et du titre resserrées, poubelles plus proches du titre et bacs un peu plus petits en rangée.
+
+![Espacement normal (en haut) et réduit avec un arrondi de 24 px (en bas)](docs/images/espacement.png)
 
 ### Plusieurs cartes
 

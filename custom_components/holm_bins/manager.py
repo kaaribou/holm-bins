@@ -152,6 +152,8 @@ class BinsManager:
             s["camera_alert"] = bool(s.get("camera_alert", True))
             for k in ("text_eve", "text_today", "text_reminder"):
                 s[k] = str(s.get(k) or "").strip()[:500]
+            for k in ("title_notif", "title_reminder"):
+                s[k] = str(s.get(k) or "").strip()[:120]
             self.settings = s
         self.out = {k: v for k, v in self.out.items() if k in ids}
         await self.async_save()
@@ -350,18 +352,19 @@ class BinsManager:
         when = f"{WEEKDAYS[lang][nxt.weekday()]} {nxt.strftime('%d/%m')}"
         if kind == "eve":
             self.hass.bus.async_fire(EVENT_DUE, {"bins": [b["id"] for b in bins], "names": [b["name"] for b in bins], "date": nxt.isoformat()})
-        title = t["reminder_title"] if kind == "reminder" else t["title"]
         key = "reminder" if kind == "reminder" else ("eve" if kind == "eve" else "today")
-        msg = self._custom_text(key, bins, names, when, nxt) or t[key].format(bins=names, date=when)
+        title = (self._custom_text("title_reminder" if kind == "reminder" else "title_notif", bins, names, when, nxt)
+                 or (t["reminder_title"] if kind == "reminder" else t["title"]))
+        msg = self._custom_text(f"text_{key}", bins, names, when, nxt) or t[key].format(bins=names, date=when)
         data = {"title": title, "message": msg,
                 "data": {"tag": "holm_bins", "ttl": 0, "priority": "high", "notification_icon": "mdi:delete-empty",
                          "actions": [{"action": f"{ACTION_DONE}|{','.join(b['id'] for b in bins)}", "title": t["done"]}]}}
         self._notify(self.settings.get("targets") or [], data)
 
     def _custom_text(self, key: str, bins: list[dict], names: str, when: str, nxt: date) -> str:
-        """Texte personnalisé (réglages), rendu comme un modèle Home Assistant : {{ poubelles }}, {{ date }}, {{ jour }}, {{ liste }},
+        """Texte ou titre personnalisé (réglage `key`), rendu comme un modèle Home Assistant : {{ poubelles }}, {{ date }}, {{ jour }}, {{ liste }},
         ou n'importe quelle entité, par exemple {{ states('input_text.message_poubelles') }}. Vide ou en erreur : texte par défaut."""
-        raw = (self.settings.get(f"text_{key}") or "").strip()
+        raw = (self.settings.get(key) or "").strip()
         if not raw:
             return ""
         variables = {"poubelles": names, "bins": names, "date": when, "jour": nxt.isoformat(), "liste": [b["name"] for b in bins]}
@@ -387,12 +390,14 @@ class BinsManager:
 
     async def async_test_notification(self) -> int:
         lang = self._lang()
-        msg = "HOLM Poubelles ✓"
-        if self.settings.get("text_eve") and self.bins:   # aperçu du texte personnalisé, avec la première poubelle
+        msg, title = "HOLM Poubelles ✓", NOTIF[lang]["title"]
+        if (self.settings.get("text_eve") or self.settings.get("title_notif")) and self.bins:   # aperçu du texte et du titre personnalisés, avec la première poubelle
             b = self.bins[0]
             nxt = (self.info.get(b["id"]) or {}).get("next") or dt_util.now().date() + timedelta(days=1)
-            msg = self._custom_text("eve", [b], b["name"], f"{WEEKDAYS[lang][nxt.weekday()]} {nxt.strftime('%d/%m')}", nxt) or msg
-        data = {"title": NOTIF[lang]["title"], "message": msg, "data": {"tag": "holm_bins_test"}}
+            when = f"{WEEKDAYS[lang][nxt.weekday()]} {nxt.strftime('%d/%m')}"
+            msg = self._custom_text("text_eve", [b], b["name"], when, nxt) or msg
+            title = self._custom_text("title_notif", [b], b["name"], when, nxt) or title
+        data = {"title": title, "message": msg, "data": {"tag": "holm_bins_test"}}
         n = 0
         for target in self.settings.get("targets") or []:
             if self.hass.services.has_service("notify", target):

@@ -222,18 +222,22 @@ async def test_custom_notification_text(hass, freezer):
     await m.async_replace([{"name": "Jaune", "rule": {"type": "weekly", "weekdays": [2]}}],
                           {"targets": ["mobile_app_test"], "time": "19:00", "reminder": "21:30",
                            "text_eve": "{{ states('input_text.msg_poubelles') | replace('{}', poubelles) }} ({{ date }})",
-                           "text_reminder": "{{ oops("})
+                           "text_reminder": "{{ oops(",
+                           "title_notif": "🗑️ Maison · {{ poubelles }}", "title_reminder": "  "})
     await m.async_apply()
     freezer.move_to(datetime(2026, 11, 17, 19, 0, 5, tzinfo=TZ))
     async_fire_time_changed(hass)
     await hass.async_block_till_done()
     assert notif[-1].data["message"] == "Sortez Jaune ! (mercredi 18/11)", notif[-1].data
+    assert notif[-1].data["title"] == "🗑️ Maison · Jaune"   # #7 : titre personnalisé
     freezer.move_to(datetime(2026, 11, 17, 21, 30, 5, tzinfo=TZ))
     async_fire_time_changed(hass)
     await hass.async_block_till_done()
     assert notif[-1].data["message"] == "Pas encore sortie : Jaune.", notif[-1].data   # modèle invalide : texte par défaut
+    assert notif[-1].data["title"] == "⏰ Rappel poubelles"   # titre vide : titre par défaut
     assert await m.async_test_notification() == 1
     assert notif[-1].data["message"].startswith("Sortez Jaune !")
+    assert notif[-1].data["title"] == "🗑️ Maison · Jaune"
 
 
 async def test_ws_save_then_test(hass, freezer, hass_ws_client):

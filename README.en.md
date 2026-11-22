@@ -29,7 +29,16 @@ HOLM Bins knows the collection days of each of your bins: a **recurrence** (ever
 
 > Screenshots are in French; the card follows your Home Assistant profile language.
 
-### 🆕 What's new in 1.2.0
+### 🆕 What's new in 1.3.0
+
+- 🏷️ **Customisable notification titles**: the reminder title (day before and morning) and the follow-up title, with the same variables as the texts. See [Notification titles and texts](#notification-titles-and-texts).
+- 🔲 **Adjustable corner radius**: `border_radius` card option, or `holm-bins-border-radius` theme variable for all your cards. See [Radius and spacing](#radius-and-spacing).
+- 📱 **Less wasted space**: smaller margins at the top and bottom of the card, especially with a title, and a new **Spacing: Reduced** option to save as much room as possible on mobile.
+- Update: **restart Home Assistant** (titles are sent by the integration), then refresh your browser (Ctrl+F5).
+
+![Normal spacing (top) and reduced with a 24 px radius (bottom)](docs/images/espacement.png)
+
+### What's new in 1.2.0
 
 - 📅 **One calendar for several bins**: a **keyword** per bin ("Garbage", "Recycling"…) keeps only the events whose name contains it. See [A calendar shared by several bins](#a-calendar-shared-by-several-bins).
 - ✍️ **Custom notification texts**, with the `{{ poubelles }}` (bins) and `{{ date }}` variables, or an `input_text`. See [Notification texts](#notification-texts).
@@ -117,16 +126,23 @@ actions:
 | **Follow-up if not out at** | Second reminder, only for bins not out yet (tick the box to turn it on) | 21:30 |
 | **Reminder on collection morning at** | Reminder on the day itself, if the bin is still not out (tick box) | off |
 | **On collection day, move to the next one at** | Time from which today's collection counts as done | 12:00 |
-| **Notification texts** | Your own texts for the day before, the collection morning and the follow-up (see below). Empty = default text | empty |
-| **Send a test notification** | Saves the settings and sends a test message to the ticked devices (with your day-before text if filled in) | |
+| **Notification titles and texts** | Your own titles (reminder and follow-up) and texts (day before, collection morning, follow-up), see below. Empty = default title or text | empty |
+| **Send a test notification** | Saves the settings and sends a test message to the ticked devices (with your day-before title and text if filled in) | |
 
 Bins of the same collection are grouped into **one notification**. On the mobile app it has a **"Done"** button: it marks those bins as out and the notification is cleared from the other devices. Only bins with **Reminder notification** ticked are announced.
 
 ![Reminder settings](docs/images/reglages-rappels.png)
 
-### Notification texts
+### Notification titles and texts
 
-At the bottom of the **Reminders** tab, three text boxes replace the default messages:
+At the bottom of the **Reminders** tab, two title fields and three text boxes replace the default titles and messages:
+
+| Field | Replaces | Default |
+|---|---|---|
+| **Title — day before and morning** | The title of the day-before and collection-morning reminders | "🗑️ Bins to put out" |
+| **Title — follow-up** | The follow-up title | "⏰ Bin reminder" |
+
+Texts:
 
 | Box | Replaces | Default text |
 |---|---|---|
@@ -149,7 +165,7 @@ These are **Home Assistant templates**: you can read any entity, for example an 
 {{ states('input_text.bins_message') }}: {{ poubelles }}
 ```
 
-A template with an error does not stop the reminder: the default text is sent instead (and the error is logged). The title and the "Done" button stay the same.
+A template with an error does not stop the reminder: the default text is sent instead (and the error is logged). The same goes for a title. The "Done" button stays the same, and the camera alert keeps its own title. A title in the same style as your other notifications, for example: `🏠 Home · {{ poubelles }}`.
 
 ![Notification texts](docs/images/textes-notifications.png)
 
@@ -298,6 +314,8 @@ A **PNG or SVG with a transparent background**, roughly square, looks best. It k
 |---|---|---|
 | `language` | Card language: `fr`, `en`, `de`, `es`, `it`, `nl`, `pt`, `pl` | profile language |
 | `title` | Title above the bins | none |
+| `border_radius` | Card corner radius: `16px`, `16` or `0` (square corners). See [Radius and spacing](#radius-and-spacing) | theme's |
+| `spacing` | `normal` or `compact` (reduced spacing: smaller margins around the card, title and bins, slightly smaller bins) | `normal` |
 | `background` | Card background: a colour (`#1e3a5f`), a gradient or a theme variable (`var(--primary-color)`, `var(--card-background-color)`…) | theme's |
 | `layout` | `row` (side by side), `list` (one per line) or `compact` (centred pills: bin and delay only, ideal for a navigation bar) | `row` |
 | `bins` | List of bins to show (ids), in this order. Also limits the gear to these bins (see [Several cards](#several-cards)) | all |
@@ -310,6 +328,20 @@ A **PNG or SVG with a transparent background**, roughly square, looks best. It k
 | `show_settings` | ⚙ Settings button (administrators only) | `true` |
 
 The visual editor is available.
+
+### Radius and spacing
+
+- **Corner radius** (`border_radius`, editor field "Corner radius"): empty, the card uses your theme's radius. To set all your HOLM Bins cards at once, add the variable to your theme:
+
+  ```yaml
+  my_theme:
+    holm-bins-border-radius: 16px
+  ```
+
+  The card option wins over the theme variable, which wins over the theme's card radius (`ha-card-border-radius`).
+- **Spacing** (`spacing`, editor field "Spacing"): **Normal**, or **Reduced (saves space)** for mobile: tighter card and title margins, bins closer to the title and slightly smaller in a row.
+
+![Normal spacing (top) and reduced with a 24 px radius (bottom)](docs/images/espacement.png)
 
 ### Several cards
 

@@ -1,7 +1,7 @@
 /* HOLM Poubelles — carte des collectes — https://github.com/kaaribou/holm-bins — licence MIT
  * HOLM — Home Orchestration & Living Management */
 (() => {
-  const VERSION = "1.2.0";
+  const VERSION = "1.3.0";
   // ---- HOLM i18n : textes écrits en français, traduits à l'affichage (en, de, es, it, nl, pt, pl) ----
   const HOLM_LANGS = ["en", "de", "es", "it", "nl", "pt", "pl"];
   const LANG_NAMES = { fr: "Français", en: "English", de: "Deutsch", es: "Español", it: "Italiano", nl: "Nederlands", pt: "Português", pl: "Polski" };
@@ -19,6 +19,16 @@
     "Pour un calendrier commun à plusieurs poubelles : seuls les événements dont le nom contient ce mot comptent (plusieurs mots : séparés par des virgules).": ["For a calendar shared by several bins: only events whose name contains this word count (several words: comma-separated).", "Für einen Kalender mehrerer Tonnen: nur Termine, deren Name dieses Wort enthält, zählen (mehrere Wörter: durch Kommas getrennt).", "Para un calendario común a varios cubos: solo cuentan los eventos cuyo nombre contiene esta palabra (varias palabras: separadas por comas).", "Per un calendario comune a più bidoni: contano solo gli eventi il cui nome contiene questa parola (più parole: separate da virgole).", "Voor een kalender van meerdere containers: alleen afspraken met dit woord in de naam tellen (meerdere woorden: gescheiden door komma's).", "Para um calendário comum a vários caixotes: só contam os eventos cujo nome contém esta palavra (várias palavras: separadas por vírgulas).", "Dla kalendarza wspólnego dla kilku koszy: liczą się tylko wydarzenia, których nazwa zawiera to słowo (kilka słów: oddziel przecinkami)."],
     "Événements du calendrier :": ["Calendar events:", "Kalendertermine:", "Eventos del calendario:", "Eventi del calendario:", "Afspraken in de kalender:", "Eventos do calendário:", "Wydarzenia w kalendarzu:"],
     "Calendrier {c} · « {k} »": ["Calendar {c} · \"{k}\"", "Kalender {c} · „{k}“", "Calendario {c} · «{k}»", "Calendario {c} · «{k}»", "Kalender {c} · \"{k}\"", "Calendário {c} · «{k}»", "Kalendarz {c} · „{k}”"],
+    "Titres et textes des notifications (facultatif)": ["Notification titles and texts (optional)", "Titel und Texte der Benachrichtigungen (optional)", "Títulos y textos de las notificaciones (opcional)", "Titoli e testi delle notifiche (facoltativi)", "Titels en teksten van de meldingen (optioneel)", "Títulos e textos das notificações (opcional)", "Tytuły i teksty powiadomień (opcjonalnie)"],
+    "Vide = titre ou texte par défaut. Variables : {{ poubelles }} et {{ date }}. Les modèles Home Assistant fonctionnent aussi, par exemple {{ states('input_text.message_poubelles') }}.": ["Empty = default title or text. Variables: {{ poubelles }} and {{ date }}. Home Assistant templates work too, for example {{ states('input_text.message_poubelles') }}.", "Leer = Standardtitel bzw. -text. Variablen: {{ poubelles }} und {{ date }}. Home-Assistant-Vorlagen gehen auch, z. B. {{ states('input_text.message_poubelles') }}.", "Vacío = título o texto por defecto. Variables: {{ poubelles }} y {{ date }}. También funcionan las plantillas de Home Assistant, por ejemplo {{ states('input_text.message_poubelles') }}.", "Vuoto = titolo o testo predefinito. Variabili: {{ poubelles }} e {{ date }}. Funzionano anche i modelli di Home Assistant, ad esempio {{ states('input_text.message_poubelles') }}.", "Leeg = standaardtitel of -tekst. Variabelen: {{ poubelles }} en {{ date }}. Home Assistant-sjablonen werken ook, bijvoorbeeld {{ states('input_text.message_poubelles') }}.", "Vazio = título ou texto predefinido. Variáveis: {{ poubelles }} e {{ date }}. Os modelos do Home Assistant também funcionam, por exemplo {{ states('input_text.message_poubelles') }}.", "Puste = domyślny tytuł lub tekst. Zmienne: {{ poubelles }} i {{ date }}. Działają też szablony Home Assistant, np. {{ states('input_text.message_poubelles') }}."],
+    "Titre — la veille et le matin": ["Title — day before and morning", "Titel — Vortag und Morgen", "Título — víspera y mañana", "Titolo — giorno prima e mattina", "Titel — dag ervoor en ochtend", "Título — véspera e manhã", "Tytuł — dzień wcześniej i rano"],
+    "Titre — relance": ["Title — follow-up", "Titel — Erinnerung", "Título — recordatorio", "Titolo — sollecito", "Titel — herinnering", "Título — lembrete", "Tytuł — ponowne przypomnienie"],
+    "🗑️ Poubelles à sortir": ["🗑️ Bins to put out", "🗑️ Mülltonnen rausstellen", "🗑️ Sacar los cubos", "🗑️ Bidoni da portare fuori", "🗑️ Containers buitenzetten", "🗑️ Pôr o lixo na rua", "🗑️ Wystaw kosze"],
+    "⏰ Rappel poubelles": ["⏰ Bin reminder", "⏰ Mülltonnen-Erinnerung", "⏰ Recordatorio de cubos", "⏰ Promemoria bidoni", "⏰ Herinnering containers", "⏰ Lembrete do lixo", "⏰ Przypomnienie o koszach"],
+    "Arrondi des bords (ex. 16px ; vide = celui du thème)": ["Corner radius (e.g. 16px; empty = the theme's)", "Eckenradius (z. B. 16px; leer = der des Themes)", "Radio de las esquinas (p. ej. 16px; vacío = el del tema)", "Arrotondamento degli angoli (es. 16px; vuoto = quello del tema)", "Hoekafronding (bijv. 16px; leeg = die van het thema)", "Arredondamento dos cantos (ex. 16px; vazio = o do tema)", "Zaokrąglenie rogów (np. 16px; puste = z motywu)"],
+    "Espacement": ["Spacing", "Abstände", "Espaciado", "Spaziatura", "Ruimte", "Espaçamento", "Odstępy"],
+    "Normal": ["Normal", "Normal", "Normal", "Normale", "Normaal", "Normal", "Normalne"],
+    "Réduit (gain de place)": ["Reduced (saves space)", "Reduziert (platzsparend)", "Reducido (ahorra espacio)", "Ridotta (risparmia spazio)", "Verkleind (bespaart ruimte)", "Reduzido (poupa espaço)", "Zmniejszone (oszczędza miejsce)"],
     "Textes des notifications (facultatif)": ["Notification texts (optional)", "Benachrichtigungstexte (optional)", "Textos de las notificaciones (opcional)", "Testi delle notifiche (facoltativi)", "Teksten van de meldingen (optioneel)", "Textos das notificações (opcional)", "Teksty powiadomień (opcjonalnie)"],
     "Vide = texte par défaut. Variables : {{ poubelles }} et {{ date }}. Les modèles Home Assistant fonctionnent aussi, par exemple {{ states('input_text.message_poubelles') }}.": ["Empty = default text. Variables: {{ poubelles }} (bins) and {{ date }}. Home Assistant templates work too, e.g. {{ states('input_text.bins_message') }}.", "Leer = Standardtext. Variablen: {{ poubelles }} (Tonnen) und {{ date }}. Home-Assistant-Vorlagen gehen auch, z. B. {{ states('input_text.muell_text') }}.", "Vacío = texto por defecto. Variables: {{ poubelles }} (cubos) y {{ date }}. También funcionan las plantillas de Home Assistant, p. ej. {{ states('input_text.mensaje_cubos') }}.", "Vuoto = testo predefinito. Variabili: {{ poubelles }} (bidoni) e {{ date }}. Funzionano anche i modelli di Home Assistant, es. {{ states('input_text.messaggio_bidoni') }}.", "Leeg = standaardtekst. Variabelen: {{ poubelles }} (containers) en {{ date }}. Home Assistant-sjablonen werken ook, bv. {{ states('input_text.bericht_containers') }}.", "Vazio = texto predefinido. Variáveis: {{ poubelles }} (caixotes) e {{ date }}. Os modelos do Home Assistant também funcionam, p. ex. {{ states('input_text.mensagem_lixo') }}.", "Puste = tekst domyślny. Zmienne: {{ poubelles }} (kosze) i {{ date }}. Działają też szablony Home Assistant, np. {{ states('input_text.wiadomosc_kosze') }}."],
     "La veille": ["The day before", "Am Vortag", "La víspera", "Il giorno prima", "De dag ervoor", "Na véspera", "Dzień wcześniej"],
@@ -277,6 +287,11 @@
       const r = this.shadowRoot, card = r.querySelector("ha-card"), box = r.getElementById("bins"), hd = r.getElementById("hd");
       card.dataset.layout = this._c.layout || "row";
       card.style.background = this._c.background || "";   // couleur, dégradé ou variable de thème (var(--…))
+      // arrondi : option de la carte, sinon variable de thème holm-bins-border-radius, sinon celui du thème
+      const rad = String(this._c.border_radius ?? "").trim();
+      this.style.setProperty("--hb-radius", rad ? (/^\d+(\.\d+)?$/.test(rad) ? rad + "px" : rad) : "");
+      if (!rad) this.style.removeProperty("--hb-radius");
+      card.dataset.spacing = this._c.spacing === "compact" ? "compact" : "normal";
       const gear = this._c.show_settings !== false && this._admin() ? `<button class="gear" title="${esc(_("Réglages des poubelles"))}"><ha-icon icon="mdi:cog-outline"></ha-icon></button>` : "";
       hd.innerHTML = this._c.title ? `<div class="ttl">${esc(this._c.title)}</div>${gear}` : "";
       hd.style.display = this._c.title ? "" : "none";
@@ -372,8 +387,9 @@
             <label class="fl"><span>${_("Le jour de collecte, passer à la suivante à")}</span><input type="time" data-s="end" value="${esc(s.end)}"></label>
           </div>
           <div class="sep"></div>
-          <div class="fl"><label>${_("Textes des notifications (facultatif)")}</label></div>
-          <div class="hint">${esc(_("Vide = texte par défaut. Variables : {{ poubelles }} et {{ date }}. Les modèles Home Assistant fonctionnent aussi, par exemple {{ states('input_text.message_poubelles') }}."))}</div>
+          <div class="fl"><label>${_("Titres et textes des notifications (facultatif)")}</label></div>
+          <div class="hint">${esc(_("Vide = titre ou texte par défaut. Variables : {{ poubelles }} et {{ date }}. Les modèles Home Assistant fonctionnent aussi, par exemple {{ states('input_text.message_poubelles') }}."))}</div>
+          ${[["title_notif", "Titre — la veille et le matin", "🗑️ Poubelles à sortir"], ["title_reminder", "Titre — relance", "⏰ Rappel poubelles"]].map(([k, l, ph]) => `<label class="fl"><span>${_(l)}</span><input type="text" data-s="${k}" maxlength="120" placeholder="${esc(_(ph))}" value="${esc(s[k] || "")}"></label>`).join("")}
           ${[["text_eve", "La veille"], ["text_today", "Le matin de la collecte"], ["text_reminder", "Relance"]].map(([k, l]) => `<label class="fl"><span>${_(l)}</span><textarea data-s="${k}" rows="2" maxlength="500" placeholder="${esc(_({ text_eve: "Ce soir : {bins} (collecte demain, {date}).", text_today: "Aujourd'hui : {bins} (collecte ce jour).", text_reminder: "Pas encore sortie : {bins}." }[k], { bins: "{{ poubelles }}", date: "{{ date }}" }))}">${esc(s[k] || "")}</textarea></label>`).join("")}
           <button class="add test"><ha-icon icon="mdi:send-outline"></ha-icon>${_("Envoyer une notification de test")}</button>`;
       }
@@ -578,8 +594,13 @@
     static css() {
       return `
       :host { display:block; }
-      ha-card { position:relative; overflow:hidden; padding:10px 12px 12px; }
-      .hd { display:flex; align-items:center; gap:8px; margin:2px 4px 8px; }
+      ha-card { position:relative; overflow:hidden; padding:8px 10px 10px; border-radius: var(--hb-radius, var(--holm-bins-border-radius, var(--ha-card-border-radius, 12px))); }
+      .hd { display:flex; align-items:center; gap:8px; margin:0 4px 4px; }
+      /* espacement réduit : moins de marge autour de la carte, du titre et des poubelles */
+      ha-card[data-spacing="compact"] { padding:4px 6px 6px; }
+      ha-card[data-spacing="compact"] .hd { margin:0 4px 2px; }
+      ha-card[data-spacing="compact"] .ttl { font-size:14px; }
+      ha-card[data-spacing="compact"] .bins > .gear { top:2px; right:2px; }
       .ttl { flex:1; font-size:15px; font-weight:700; }
       .gear { border:0; background:none; color:inherit; opacity:.55; cursor:pointer; padding:3px; border-radius:50%; }
       .gear:hover { opacity:1; background: rgba(127,127,127,.18); } .gear ha-icon { --mdc-icon-size:18px; display:block; }
@@ -590,6 +611,7 @@
       ha-card[data-layout="row"] .bin { flex:1 1 0; min-width:62px; max-width:180px; flex-direction:column; text-align:center; padding:8px 2px 10px; }
       @container (max-width: 340px) {
         ha-card[data-layout="row"] .pic { width:46px; height:52px; --em:17px; }
+        ha-card[data-spacing="compact"][data-layout="row"] .pic { width:42px; height:48px; --em:15px; }
         ha-card[data-layout="row"] .when { font-size:12.5px; }
         ha-card[data-layout="row"] .nm { font-size:11px; }
         ha-card[data-layout="row"] .dt { font-size:10px; }
@@ -603,6 +625,10 @@
       ha-card[data-layout="compact"] .pic { width:28px; height:32px; }
       ha-card[data-layout="compact"] .nm, ha-card[data-layout="compact"] .dt, ha-card[data-layout="compact"] .bar { display:none; }
       ha-card[data-layout="compact"] .when { font-size:12px; margin:0; }
+      ha-card[data-spacing="compact"][data-layout="row"] .bin { padding:2px 2px 4px; }
+      ha-card[data-spacing="compact"][data-layout="row"] .pic { width:52px; height:58px; --em:19px; }
+      ha-card[data-spacing="compact"] .bar { margin-top:4px; }
+      ha-card[data-spacing="compact"][data-layout="list"] .bin { padding:4px 6px; }
       .bin { position:relative; display:flex; align-items:center; gap:4px 10px; padding:8px 6px 10px; border-radius:16px; cursor:pointer; isolation:isolate;
         transition: background .3s, box-shadow .3s; -webkit-tap-highlight-color: transparent; }
       .bin:hover { background: rgba(127,127,127,.08); }
@@ -749,6 +775,8 @@
           langField(),
           { name: "title", selector: { text: {} } },
           { name: "background", selector: { text: {} } },
+          { type: "grid", name: "", schema: [{ name: "border_radius", selector: { text: {} } },
+            { name: "spacing", selector: { select: { mode: "dropdown", options: [{ value: "normal", label: "Normal" }, { value: "compact", label: "Réduit (gain de place)" }] } } }] },
           { name: "layout", selector: { select: { mode: "dropdown", options: [{ value: "row", label: "En rangée" }, { value: "list", label: "En liste" }, { value: "compact", label: "Compacte (pastilles)" }] } } },
           { name: "bins", selector: { select: { multiple: true, mode: "list", options: bins.map((b) => ({ value: b.attributes.holm_bins, label: b.attributes.nom })) } } },
           { name: "sort", selector: { select: { mode: "dropdown", options: [{ value: "", label: "Ordre des réglages" }, { value: "date", label: "Prochaine collecte d'abord" }] } } },
@@ -758,12 +786,13 @@
         ]);
         const L = { language: "Langue", title: "Titre (optionnel)", layout: "Disposition", bins: "Poubelles affichées (aucune = toutes)", sort: "Ordre",
           hide_after: "Masquer les collectes au-delà de (0 = jamais)", background: "Fond de la carte (couleur ou variable de thème)", tap_action: "Appui sur une poubelle", show_date: "Afficher la date", show_progress: "Barre d'approche de la collecte",
-          fx: "Ambiances HOLM FX", show_settings: "Bouton Réglages (administrateurs)" };
+          fx: "Ambiances HOLM FX", show_settings: "Bouton Réglages (administrateurs)",
+          border_radius: "Arrondi des bords (ex. 16px ; vide = celui du thème)", spacing: "Espacement" };
         this._form.computeLabel = (s) => (L[s.name] ? _(L[s.name]) : s.name);
         this._form.addEventListener("value-changed", (ev) => {
           const out = { ...this._config, ...ev.detail.value };
           for (const [k, v] of Object.entries(out)) if (v === "" || v === undefined || v === null || (Array.isArray(v) && !v.length)) delete out[k];
-          const defs = { layout: "row", show_date: true, show_progress: true, show_settings: true, fx: true, tap_action: "out", hide_after: 0 };
+          const defs = { layout: "row", spacing: "normal", show_date: true, show_progress: true, show_settings: true, fx: true, tap_action: "out", hide_after: 0 };
           for (const [k, v] of Object.entries(defs)) if (out[k] === v) delete out[k];
           this._config = out;
           this.dispatchEvent(new CustomEvent("config-changed", { detail: { config: out }, bubbles: true, composed: true }));
@@ -771,7 +800,7 @@
         this.appendChild(this._form);
       }
       this._form.hass = this._hass;
-      this._form.data = { layout: "row", show_date: true, show_progress: true, show_settings: true, fx: true, tap_action: "out", hide_after: 0, sort: "", ...this._config };
+      this._form.data = { layout: "row", spacing: "normal", show_date: true, show_progress: true, show_settings: true, fx: true, tap_action: "out", hide_after: 0, sort: "", ...this._config };
     }
   }
 

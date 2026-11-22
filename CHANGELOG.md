@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.3.0
+- **Titres des notifications personnalisables** ([#7](https://github.com/kaaribou/holm-bins/issues/7)) : « Titre — la veille et le matin » et « Titre — relance » dans l'onglet Rappels (réglages `title_notif` et `title_reminder`), modèles Home Assistant avec les mêmes variables que les textes. Vide ou en erreur : titre par défaut. La notification de test utilise le titre personnalisé.
+- **Arrondi des bords** ([#6](https://github.com/kaaribou/holm-bins/issues/6)) : option `border_radius` (aussi dans l'éditeur) et variable de thème `holm-bins-border-radius` ; sinon l'arrondi du thème.
+- **Moins de place perdue** ([#6](https://github.com/kaaribou/holm-bins/issues/6)) : marges réduites en haut et en bas de la carte et sous le titre ; nouvelle option `spacing: compact` (« Espacement : Réduit ») pour mobile.
+- Traductions dans les 8 langues. Redémarrage de Home Assistant nécessaire (titres envoyés par l'intégration).
+
 ## 1.2.0
 - **Un seul calendrier pour plusieurs poubelles** ([#4](https://github.com/kaaribou/holm-bins/issues/4)) : nouveau champ **Mot-clé dans le nom de l'événement** pour la source Calendrier. Seuls les événements dont le nom contient ce mot comptent (majuscules et accents ignorés, début de mot, plusieurs mots séparés par des virgules). Les noms d'événements du calendrier sont proposés sous le champ ; un appui en fait le mot-clé.
 - **Textes des notifications personnalisables** ([#3](https://github.com/kaaribou/holm-bins/issues/3)) : la veille, le matin de la collecte et la relance, dans l'onglet Rappels. Modèles Home Assistant, avec les variables `{{ poubelles }}`, `{{ date }}`, `{{ jour }}` et `{{ liste }}` (par exemple `{{ states('input_text.message_poubelles') }}`). Un modèle en erreur laisse partir le texte par défaut.
